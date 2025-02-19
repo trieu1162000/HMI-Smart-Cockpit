@@ -31,7 +31,7 @@ start adbd
 ```console
 ifconfig wlan0 <IP_of_Target>
 ```
-### Connect to the Raspberry Pi via ADB from your host computer
+### Connect to the Target via ADB from your host computer
 ```console
 adb connect <IP_of_Target> 5555
 adb shell
