@@ -22,6 +22,8 @@ qt_add_qml_module(appHSC
     QML_FILES
         QML/Main.qml
         QML/MainDashBoard.qml
+        QML/LeftPanel/LeftSidePanel.qml
+        QML/BottomBar/BottomBar.qml
     SOURCES
         CPP/controllers/audiocontroller.cpp
         CPP/controllers/audiocontroller.h
