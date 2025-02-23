@@ -51,5 +51,23 @@
         <file>images/like.png</file>
         <file>images/liked.png</file>
         <file>images/list.png</file>
+        <file>images/volume_32.png</file>
+        <file>images/car_32.png</file>
+        <file>images/car_24.png</file>
+        <file>images/bluetooth_app.png</file>
+        <file>images/phone_app.png</file>
+        <file>images/spotify_app.png</file>
+        <file>images/camera_app.png</file>
+        <file>images/phone_32_app.png</file>
+        <file>images/camera_32_app.png</file>
+        <file>images/spotify_32_app.png</file>
+        <file>images/gallery_32_app.png</file>
+        <file>images/recorder_32_app.png</file>
+        <file>images/bluetooth_32_app.png</file>
+        <file>images/video_32_app.png</file>
+        <file>images/arrow_right_16.png</file>
+        <file>images/arrow_left_16.png</file>
+        <file>images/volume_256.png</file>
+        <file>images/volume_512.png</file>
     </qresource>
 </RCC>
