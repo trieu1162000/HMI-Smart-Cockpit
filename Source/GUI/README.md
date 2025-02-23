@@ -16,4 +16,4 @@
 - **Not Started**
 
 ## References
-- Tesla Dashboard UI Component Library - **[`TeslaV1x`](https://www.figma.com/community/file/1382192547846546595)**
+- Tesla V1x - **[`Tesla Dashboard UI Component Library`](https://www.figma.com/community/file/1382192547846546595)**

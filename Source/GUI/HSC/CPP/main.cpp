@@ -16,7 +16,6 @@ int main(int argc, char *argv[])
         &app,
         []() { QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
-    engine.loadFromModule("HSC", "Main");
 
     // Controller
     audioController a_controller;
@@ -29,6 +28,8 @@ int main(int argc, char *argv[])
     context->setContextProperty("audioController", &a_controller);
     context->setContextProperty("lightController", &l_controller);
     context->setContextProperty("speedController", &s_controller);
+
+    engine.loadFromModule("HSC", "Main");
 
     return app.exec();
 }
