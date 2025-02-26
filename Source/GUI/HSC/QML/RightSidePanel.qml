@@ -18,6 +18,20 @@ Rectangle {
         source: "/images/lock.png"
         fillMode: Image.PreserveAspectFit
         z: 1
+        MouseArea {
+            id: mouseAreaCarLocked
+            anchors.fill: parent
+
+            onPressed: {
+                lockController.setCarLocked(!lockController.carLocked)
+            }
+        }
+        Connections {
+            target: lockController
+            function onCarLockedChanged() {
+                lockIcon.source = lockController.carLocked ? "/images/lock.png" : "/images/unlock_32.png"
+            }
+        }
     }
     Image {
         id: bluetoothIcon

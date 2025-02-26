@@ -72,5 +72,6 @@
         <file>images/like_16.png</file>
         <file>images/liked_24.png</file>
         <file>images/like_24.png</file>
+        <file>images/unlock_32.png</file>
     </qresource>
 </RCC>
