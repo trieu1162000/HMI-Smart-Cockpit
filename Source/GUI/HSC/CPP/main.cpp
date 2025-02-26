@@ -4,6 +4,7 @@
 #include "controllers/audioController.h"
 #include "controllers/lightController.h"
 #include "controllers/speedController.h"
+#include "controllers/lockcontroller.h"
 
 int main(int argc, char *argv[])
 {
@@ -21,6 +22,8 @@ int main(int argc, char *argv[])
     audioController a_controller;
     lightController l_controller;
     speedController s_controller;
+    lockController locked_controller;
+
 
     QQmlContext *context( engine.rootContext() );
 
@@ -28,6 +31,7 @@ int main(int argc, char *argv[])
     context->setContextProperty("audioController", &a_controller);
     context->setContextProperty("lightController", &l_controller);
     context->setContextProperty("speedController", &s_controller);
+    context->setContextProperty("lockController", &locked_controller);
 
     engine.loadFromModule("HSC", "Main");
 
