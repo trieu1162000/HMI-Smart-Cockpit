@@ -34,8 +34,6 @@ Rectangle {
 
 
         RowLayout {
-            // Layout.fillWidth: true  // Equal width share
-
             spacing: parent.height / 2
             Layout.alignment: Qt.AlignVCenter
             height: parent.height
@@ -44,6 +42,12 @@ Rectangle {
                 Layout.preferredWidth: Layout.preferredHeight  // Ensure it has a width
                 source: "/images/arrow_left_16.png"
                 fillMode: Image.PreserveAspectFit
+                MouseArea {
+                    anchors.fill: parent
+                    onPressed: {
+                        airConditionController.increaseTemp(LEFT, -1);
+                    }
+                }
             }
 
             Rectangle {
@@ -52,7 +56,7 @@ Rectangle {
 
                 Text {
                     anchors.centerIn: parent
-                    text: "72"
+                    text: airConditionController.tempLevel(RIGHT)
                     color: "white"
                     font.pixelSize: parent.height / 3
                 }
@@ -63,6 +67,12 @@ Rectangle {
                 Layout.preferredWidth: Layout.preferredHeight  // Ensure it has a width
                 source: "/images/arrow_right_16.png"
                 fillMode: Image.PreserveAspectFit
+                MouseArea {
+                    anchors.fill: parent
+                    onPressed: {
+                        airConditionController.increaseTemp(RIGHT, -1);
+                    }
+                }
             }
         }
 
@@ -94,7 +104,7 @@ Rectangle {
         }
         // }
 
-
+        // Right Air Condition
         RowLayout {
 
             spacing: parent.height / 2
@@ -105,6 +115,12 @@ Rectangle {
                 Layout.preferredWidth: Layout.preferredHeight  // Ensure it has a width
                 source: "/images/arrow_left_16.png"
                 fillMode: Image.PreserveAspectFit
+                MouseArea {
+                    anchors.fill: parent
+                    onPressed: {
+                        airConditionController.increaseTemp(LEFT, -1);
+                    }
+                }
             }
 
             Rectangle {
@@ -114,7 +130,7 @@ Rectangle {
 
                 Text {
                     anchors.centerIn: parent
-                    text: "72"
+                    text: airConditionController.tempLevel(RIGHT)
                     color: "white"
                     font.pixelSize: parent.height / 3
                 }
@@ -125,12 +141,15 @@ Rectangle {
                 Layout.preferredWidth: Layout.preferredHeight  // Ensure it has a width
                 source: "/images/arrow_right_16.png"
                 fillMode: Image.PreserveAspectFit
+                MouseArea {
+                    anchors.fill: parent
+                    onPressed: {
+                        airConditionController.increaseTemp(RIGHT, 1);
+                    }
+                }
             }
         }
 
-
-
-        // Volume Icon
         // Volume Icon
         RowLayout {
             Layout.alignment: Qt.AlignVCenter
