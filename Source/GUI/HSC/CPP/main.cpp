@@ -1,10 +1,12 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include "controllers/airconditioncontroller.h"
 #include "controllers/audioController.h"
 #include "controllers/lightController.h"
 #include "controllers/speedController.h"
 #include "controllers/lockcontroller.h"
+#include "apptype.h"
 
 int main(int argc, char *argv[])
 {
@@ -18,7 +20,12 @@ int main(int argc, char *argv[])
         []() { QCoreApplication::exit(-1); },
         Qt::QueuedConnection);
 
+    // Register enum class for use in QML
+    qmlRegisterUncreatableType<Side>("com.example.side", 1, 0, "Side",
+                                          "Enum values only");
+
     // Controller
+    airConditionController ac_controller;
     audioController a_controller;
     lightController l_controller;
     speedController s_controller;
@@ -28,6 +35,7 @@ int main(int argc, char *argv[])
     QQmlContext *context( engine.rootContext() );
 
     // Expose the controller objects to QML
+    context->setContextProperty("airConditionController", &ac_controller);
     context->setContextProperty("audioController", &a_controller);
     context->setContextProperty("lightController", &l_controller);
     context->setContextProperty("speedController", &s_controller);

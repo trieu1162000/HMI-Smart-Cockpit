@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts
+import com.example.side 1.0
 
 Rectangle {
     id: bottomSidePanel
@@ -32,7 +33,7 @@ Rectangle {
             fillMode: Image.PreserveAspectFit
         }
 
-
+        // Left Air Condition
         RowLayout {
             spacing: parent.height / 2
             Layout.alignment: Qt.AlignVCenter
@@ -45,7 +46,7 @@ Rectangle {
                 MouseArea {
                     anchors.fill: parent
                     onPressed: {
-                        airConditionController.increaseTemp(LEFT, -1);
+                        airConditionController.increaseTemp(Side.Type.LEFT, -1);
                     }
                 }
             }
@@ -55,8 +56,9 @@ Rectangle {
                 color: "transparent"  // This should be visible
 
                 Text {
+                    id:leftTempText
                     anchors.centerIn: parent
-                    text: airConditionController.tempLevel(RIGHT)
+                    text: airConditionController.tempControl(Side.Type.LEFT)
                     color: "white"
                     font.pixelSize: parent.height / 3
                 }
@@ -70,8 +72,15 @@ Rectangle {
                 MouseArea {
                     anchors.fill: parent
                     onPressed: {
-                        airConditionController.increaseTemp(RIGHT, -1);
+                        airConditionController.increaseTemp(Side.Type.LEFT, 1);
                     }
+                }
+            }
+            Connections {
+                target: airConditionController
+                function onLeftTempControlChanged() {
+                    leftTempText.text = airConditionController.tempControl(Side.Type.LEFT);
+                    console.log("Updated Left Temp: " + leftTempText.text);
                 }
             }
         }
@@ -118,7 +127,7 @@ Rectangle {
                 MouseArea {
                     anchors.fill: parent
                     onPressed: {
-                        airConditionController.increaseTemp(LEFT, -1);
+                        airConditionController.increaseTemp(Side.Type.RIGHT, -1);
                     }
                 }
             }
@@ -129,8 +138,9 @@ Rectangle {
                 color: "transparent"  // This should be visible
 
                 Text {
+                    id: rightTempText
                     anchors.centerIn: parent
-                    text: airConditionController.tempLevel(RIGHT)
+                    text: airConditionController.tempControl(Side.Type.RIGHT)
                     color: "white"
                     font.pixelSize: parent.height / 3
                 }
@@ -144,10 +154,18 @@ Rectangle {
                 MouseArea {
                     anchors.fill: parent
                     onPressed: {
-                        airConditionController.increaseTemp(RIGHT, 1);
+                        airConditionController.increaseTemp(Side.Type.RIGHT, 1);
                     }
                 }
             }
+            Connections {
+                target: airConditionController
+                function onRightTempControlChanged() {
+                    rightTempText.text = airConditionController.tempControl(Side.Type.RIGHT);
+                    console.log("Updated Right Temp: " + rightTempText.text);
+                }
+            }
+
         }
 
         // Volume Icon

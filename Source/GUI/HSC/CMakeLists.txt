@@ -34,6 +34,9 @@ qt_add_qml_module(appHSC
         CPP/controllers/lockcontroller.h
         CPP/controllers/speedcontroller.cpp
         CPP/controllers/speedcontroller.h
+        CPP/controllers/airconditioncontroller.cpp
+        CPP/controllers/airconditioncontroller.h
+        CPP/apptype.h
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
