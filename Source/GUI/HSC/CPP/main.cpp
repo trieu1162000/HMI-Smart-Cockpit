@@ -7,6 +7,7 @@
 #include "controllers/speedController.h"
 #include "controllers/lockcontroller.h"
 #include "apptype.h"
+#include "custom3DModel/linemodel.h"
 
 int main(int argc, char *argv[])
 {
@@ -23,6 +24,7 @@ int main(int argc, char *argv[])
     // Register enum class for use in QML
     qmlRegisterUncreatableType<Side>("com.example.side", 1, 0, "Side",
                                           "Enum values only");
+    qmlRegisterType<lineModel>("Custom3D", 1, 0, "LineGeometry");
 
     // Controller
     airConditionController ac_controller;

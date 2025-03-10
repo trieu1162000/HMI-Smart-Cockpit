@@ -26,24 +26,20 @@ Rectangle {
     // }
 
 
-    // LeftSidePanel {
-    //     width: parent.width / 3.5
-    //     height: parent.height * 0.9
-
-    // }
-
+    LeftSidePanel {
+        width: parent.width * 3 / 8
+        height: parent.height * 0.9
+    }
 
     BottomBar {
         height: parent.height / 10
         width: parent.width
-        color: "#000000"
     }
 
     RightSidePanel {
         id: rightSidePanel
-        width: parent.width * 5 / 7
+        width: parent.width * 5 / 8
         height: parent.height * 9 / 10
-        color: "#000000"
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.rightMargin: 0
