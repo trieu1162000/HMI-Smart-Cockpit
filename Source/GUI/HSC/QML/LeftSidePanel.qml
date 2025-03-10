@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls
 import QtQuick3D 6.7
+import Custom3D 1.0  // Import our C++ custom geometry
 
 Rectangle {
     id: sideBar
@@ -13,16 +14,38 @@ Rectangle {
     property real lastX: 0
     property real lastY: 0
     property real rotationX: 0
-    property real rotationY: 0
-    property real zoom: 0.5
+    property real rotationY: -50
+    property real zoom: 1.5
 
     View3D {
+        id: carView3D
         anchors.fill: parent
         environment: SceneEnvironment {
                 clearColor: "black"
                 backgroundMode: SceneEnvironment.SkyBox
-                antialiasingMode: SceneEnvironment.MSAA // Bật khử răng cưa
+                antialiasingMode: SceneEnvironment.MSAA // Turn on Anti-aliasing
         }
+
+        // 2D Button on top of the 3D line
+        // Button {
+        //     id: myButton
+        //     text: "Click Me"
+        //     width: 100
+        //     height: 50
+        //     anchors.horizontalCenter: parent.horizontalCenter
+        //     anchors.verticalCenter: parent.verticalCenter
+        //     onClicked: {
+        //         console.log("Button Clicked!")
+        //     }
+
+        //     Component.onCompleted: {
+        //         var endPosition3D = Qt.vector3d(50, 50, 50)  // Ensure a valid default value
+        //         var screenPosition = carView3D.mapFrom3DScene(endPosition3D) || Qt.point(0, 0)
+
+        //         myButton.x = screenPosition.x - myButton.width / 2
+        //         myButton.y = screenPosition.y - myButton.height / 2
+        //     }
+        // }
 
         FullCar {
             id: carModel
@@ -32,10 +55,13 @@ Rectangle {
         }
 
         PerspectiveCamera {
-            position: Qt.vector3d(0, 0, 10)
+            position: Qt.vector3d(0, carView3D.height / 270, carView3D.height / 54)
             eulerRotation: Qt.vector3d(0, 0, 0)
             clipNear: 0.01
             clipFar: 10000
+            Component.onCompleted: {
+                // console.log("Parent height:", parent.parent.height);
+            }
         }
 
         DirectionalLight {
@@ -66,10 +92,35 @@ Rectangle {
             onWheel: (wheel) => {
                 let zoomFactor = 0.1
                 zoom += wheel.angleDelta.y > 0 ? zoomFactor : -zoomFactor
-                zoom = Math.max(0.2, Math.min(3, zoom))  // Limit zoom range
+                zoom = Math.max(0.5, Math.min(3, zoom))  // Limit zoom range
                 carModel.scale = Qt.vector3d(zoom, zoom, zoom)
             }
         }
+    }
+    Button {
+        id: myButton
+        text: "Click Me"
+        visible: true
+
+        // Convert 3D position to 2D
+        property vector2d projectedPos: Qt.vector2d(0, 0)
+
+        function updateButtonPosition() {
+            if (!carModel.lineEnd) {
+                console.warn("❗ lineEnd is not available yet!");
+                return;
+            }
+
+            var pos3D = carModel.lineEnd.worldPosition;
+            var pos2D = sceneView.sceneToViewport(pos3D);
+            projectedPos = Qt.vector2d(pos2D.x, pos2D.y);
+        }
+
+        Component.onCompleted: updateButtonPosition()
+        onVisibleChanged: updateButtonPosition()
+
+        x: projectedPos.x - width / 2
+        y: projectedPos.y - height / 2
     }
 }
 

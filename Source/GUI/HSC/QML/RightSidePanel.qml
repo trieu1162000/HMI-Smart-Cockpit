@@ -101,6 +101,7 @@ Rectangle {
         plugin: mapPlugin
         center: QtPositioning.coordinate(10.76, 106.66)
         zoomLevel: 14
+        activeMapType: map.supportedMapTypes[4]
         property geoCoordinate startCentroid
 
         PinchHandler {
@@ -151,6 +152,11 @@ Rectangle {
             sequence: StandardKey.ZoomOut
             onActivated: map.zoomLevel = Math.round(map.zoomLevel - 1)
         }
+        Component.onCompleted: {
+             for(var i in map.supportedMapTypes)
+             console.log("SupportedMapType:",i, map.supportedMapTypes[i].name)
+         }
+
     }
 
     Rectangle {
