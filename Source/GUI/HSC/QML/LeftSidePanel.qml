@@ -1,11 +1,12 @@
 import QtQuick 2.15
 import QtQuick.Controls
 import QtQuick3D 6.7
+import QtQuick.Layouts 2.15
 import Custom3D 1.0  // Import our C++ custom geometry
 
 Rectangle {
     id: sideBar
-    color: "white"
+    color: "#191818"
     anchors.left: parent.left
     anchors.top: parent.top
     anchors.leftMargin: 0
@@ -14,365 +15,360 @@ Rectangle {
     property real lastX: 0
     property real lastY: 0
     property real rotationX: 0
-    property real rotationY: -50
-    property real zoom: 1.5
-
-    View3D {
-        id: carView3D
-        anchors.fill: parent
-        environment: SceneEnvironment {
-                clearColor: "black"
-                backgroundMode: SceneEnvironment.SkyBox
-                antialiasingMode: SceneEnvironment.MSAA // Turn on Anti-aliasing
-        }
-
-        // 2D Button on top of the 3D line
-        // Button {
-        //     id: myButton
-        //     text: "Click Me"
-        //     width: 100
-        //     height: 50
-        //     anchors.horizontalCenter: parent.horizontalCenter
-        //     anchors.verticalCenter: parent.verticalCenter
-        //     onClicked: {
-        //         console.log("Button Clicked!")
-        //     }
-
-        //     Component.onCompleted: {
-        //         var endPosition3D = Qt.vector3d(50, 50, 50)  // Ensure a valid default value
-        //         var screenPosition = carView3D.mapFrom3DScene(endPosition3D) || Qt.point(0, 0)
-
-        //         myButton.x = screenPosition.x - myButton.width / 2
-        //         myButton.y = screenPosition.y - myButton.height / 2
-        //     }
-        // }
-
-        FullCar {
-            id: carModel
-            position: Qt.vector3d(0, 0, 0)
-            scale: Qt.vector3d(zoom, zoom, zoom)
-            eulerRotation: Qt.vector3d(rotationX, rotationY, 0)
-        }
-
-        PerspectiveCamera {
-            position: Qt.vector3d(0, carView3D.height / 270, carView3D.height / 54)
-            eulerRotation: Qt.vector3d(0, 0, 0)
-            clipNear: 0.01
-            clipFar: 10000
-            Component.onCompleted: {
-                // console.log("Parent height:", parent.parent.height);
+    property real rotationY: 0
+    property real zoom: 2/3
+    Item {
+        id: headerBar
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: parent.width
+        height: parent.height / 17
+        RowLayout {
+            id: headerBarRowLayout
+            anchors.leftMargin: parent.width / 40
+            anchors.rightMargin: parent.width / 40
+            anchors.fill: headerBar
+            anchors.verticalCenter: parent.verticalCenter
+            Text {
+                id: modeDriveP
+                text: "P"
+                font.pixelSize: parent.height / 2
+                color: "white"
+                font.bold: true
             }
-        }
-
-        DirectionalLight {
-            eulerRotation.x: -30
-            eulerRotation.y: 30
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            onPressed: (mouse) => {
-                lastX = mouse.x
-                lastY = mouse.y
+            Text {
+                id: modeDriveR
+                text: "R"
+                font.pixelSize: parent.height / 2
+                color: "gray"
+            }
+            Text {
+                id: modeDriveN
+                text: "N"
+                font.pixelSize: parent.height / 2
+                color: "gray"
+            }
+            Text {
+                id: modeDriveD
+                text: "D"
+                font.pixelSize: parent.height / 2
+                color: "gray"
+            }
+            // Spacer to push items to corners
+            Item {
+                Layout.fillWidth: true
             }
 
-            onPositionChanged: (mouse) => {
-                if (mouse.buttons & Qt.LeftButton) {
-                    let dx = mouse.x - lastX
-                    let dy = mouse.y - lastY
-
-                    rotationY += dx * 0.5
-                    rotationX += dy * 0.5
-
-                    lastX = mouse.x
-                    lastY = mouse.y
+            RowLayout {
+                Layout.alignment: Qt.AlignVCenter
+                width: parent.width / 5
+                height: parent.height
+                spacing: parent.width / 50
+                Text {
+                    text: "318" + " mi"
+                    font.pixelSize: parent.height / 2
+                    color: "gray"
+                }
+                Image {
+                    id: batteryIcon
+                    height: sideBar.height / 30
+                    width: sideBar.width / 10
+                    source: "/images/full_battery.png"
+                    fillMode: Image.PreserveAspectFit
                 }
             }
 
-            onWheel: (wheel) => {
-                let zoomFactor = 0.1
-                zoom += wheel.angleDelta.y > 0 ? zoomFactor : -zoomFactor
-                zoom = Math.max(0.5, Math.min(3, zoom))  // Limit zoom range
-                carModel.scale = Qt.vector3d(zoom, zoom, zoom)
+        }
+    }
+    ColumnLayout {
+        Layout.preferredWidth: parent.width / 15
+        Layout.preferredHeight: parent.height / 3
+        spacing: parent.width / 50
+        anchors.left: parent.left
+        anchors.top: headerBar.bottom
+        anchors.leftMargin: parent.width / 40
+        Image {
+            id: headLightIcon
+            source: "/images/head_light_on_32.png"
+            Layout.alignment: Qt.AlignHCenter
+            Layout.preferredHeight: parent.width / 1.2
+            Layout.preferredWidth: Layout.preferredHeight  // Ensure it has a width
+            fillMode: Image.PreserveAspectFit
+            MouseArea {
+                id: mouseAreaHeadLight
+                anchors.fill: headLightIcon
+
+                onPressed: {
+                    lightController.setLightControl(!lightController.lightControl)
+                }
+            }
+            Connections {
+                target: lightController
+                function onLightControlChanged() {
+                    headLightIcon.source = lightController.lightControl ? "/images/head_light_on_32.png" : "/images/head_light_off_32.png"
+                }
+            }
+        }
+        Image {
+            id: highBeamIcon
+            source: "/images/high_beam_on_32.png"
+            Layout.alignment: Qt.AlignHCenter
+            Layout.preferredHeight: parent.width / 1.2
+            Layout.preferredWidth: Layout.preferredHeight  // Ensure it has a width
+            fillMode: Image.PreserveAspectFit
+        }
+        Image {
+            id: fogLightIcon
+            source: "/images/fog_light_on_32.png"
+            Layout.alignment: Qt.AlignHCenter
+            Layout.preferredHeight: parent.width / 1.0
+            Layout.preferredWidth: Layout.preferredHeight  // Ensure it has a width
+            fillMode: Image.PreserveAspectFit
+        }
+        Image {
+            id: tirePressureIcon
+            source: "/images/tire_pressure_on_32.png"
+            Layout.alignment: Qt.AlignHCenter
+            Layout.preferredHeight: parent.width / 1.3
+            Layout.preferredWidth: Layout.preferredHeight  // Ensure it has a width
+            fillMode: Image.PreserveAspectFit
+        }
+        Item {
+
+        }
+
+        Image {
+            id: seatbeltWarningIcon
+            source: "/images/seatbelt_warning_on_32.png"
+            Layout.alignment: Qt.AlignHCenter
+            Layout.preferredHeight: parent.width / 1.4
+            // Layout.preferredWidth: Layout.preferredHeight  // Ensure it has a width
+            fillMode: Image.PreserveAspectFit
+
+        }
+    }
+
+    Item {
+        id: vehicleInfoItem
+        anchors.top: headerBar.bottom
+        anchors.right: parent.right
+        width: parent.width * 9 / 10
+        height: parent.height * 3 / 34
+        Rectangle {
+            color: "transparent"
+            anchors.fill: parent
+            Image {
+                id: homeViewIcon
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
+                height: sideBar.height / 40
+                width: height
+                source: "/images/home_white_32.png"
+                fillMode: Image.PreserveAspectFit
+                MouseArea {
+                    id: mouseAreaHomeViewIcon
+                    anchors.fill: homeViewIcon
+
+                    onPressed: {
+                        rotationCarView.start()
+                    }
+                }
+                SequentialAnimation {
+                    id: rotationCarView
+                    onStopped: {
+                        buttons3DLeftSidePanel.visible = true
+                    }
+                    NumberAnimation {
+                        target: cameraRoot
+                        property: "eulerRotation.x"
+                        to: 0
+                        duration: 800
+                        easing.type: Easing.InOutQuad
+                    }
+                    NumberAnimation {
+                        target: cameraRoot
+                        property: "eulerRotation.y"
+                        to: 0
+                        duration: 800
+                        easing.type: Easing.InOutQuad
+                    }
+                    NumberAnimation {
+                        target: cameraRoot
+                        property: "eulerRotation.z"
+                        to: 0
+                        duration: 800
+                        easing.type: Easing.InOutQuad
+                    }
+                }
+            }
+        }
+        // Rectangle {
+        //     color: "White"
+        //     anchors.fill: parent
+        // }
+    }
+
+    Item {
+        id: carView3DItem
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        width: parent.width * 9 / 10
+        height: parent.height * 14 / 17
+        View3D {
+            id: carView3D
+            anchors.fill: parent
+            environment: SceneEnvironment {
+                clearColor: "transparent"
+                backgroundMode: SceneEnvironment.SkyBox
+                antialiasingMode: SceneEnvironment.MSAA // Turn on Anti-aliasing
+            }
+            camera: sceneCamera
+
+            Node {
+                id: carModelNode
+                position: Qt.vector3d(0, 0, 0)
+                eulerRotation: Qt.vector3d(0, 0, 0)
+
+                FullCar {
+                    id: carModel
+                }
+
+                Buttons3D {
+                    id: buttons3DLeftSidePanel
+                    trunkMesh: carModel.trunkCarMesh
+                    frunkMesh: carModel.frunkCarMesh
+                }
+            }
+
+            Node {
+                id: cameraRoot
+                position: Qt.vector3d(0, 0, 0)  // Center rotation at (0,0,0)
+                eulerRotation: Qt.vector3d(rotationX, rotationY, 0)  // Rotation properties
+                scale: Qt.vector3d(zoom, zoom, zoom)
+                PerspectiveCamera {
+                    id: camera
+                    position: Qt.vector3d(0, carView3D.height / 270, carView3D.height / 54)
+                    clipNear: 0.01
+                    clipFar: 10000
+                }
+            }
+            // PerspectiveCamera {
+            //     id: sceneCamera
+            //     position: Qt.vector3d(0, carView3D.height / 270, carView3D.height / 54)
+
+            //     eulerRotation: Qt.vector3d(0, rotationX, 0)
+            //     clipNear: 0.01
+            //     clipFar: 10000
+            //     Component.onCompleted: {
+            //         // console.log("Parent height:", parent.parent.height);
+            //     }
+            // }
+
+            DirectionalLight {
+                eulerRotation.x: -30
+                eulerRotation.y: 30
+            }
+
+
+            // MouseArea for Picking
+            MouseArea {
+                anchors.fill: parent
+                onClicked: (mouse) => {
+                    var result = carView3D.pick(mouse.x, mouse.y);
+                    if (result.objectHit) {
+                        var pickedObject = result.objectHit;
+                        pickedObject.isClicked = !pickedObject.isClicked;
+                        if (pickedObject.objectName === "buttonOpenFrunk") {
+                            console.log("Open Frunk Button Clicked!");
+                            if(pickedObject.isClicked)
+                            {
+                                buttons3DLeftSidePanel.visible = false
+                                changeFrunkView.start();
+                                carModel.openFrunkEvent.start();
+                            }
+                            else
+                            {
+                                // cameraRoot.eulerRotation = Qt.vector3d(0, 0, 0)
+                                carModel.closeFrunkEvent.start();
+                            }
+                        } else if(pickedObject.objectName === "lockIconRoof") {
+                            buttons3DLeftSidePanel.imageOverlayLockIconRoofSource =  pickedObject.isClicked? "/images/unlock_32.png" : "/images/lock_32.png";
+                            console.log("3D Lock Clicked!");
+                        } else if(pickedObject.objectName === "buttonOpenTrunk") {
+                            console.log("Open Trunk Button Clicked!");
+                            if(pickedObject.isClicked) {
+                                buttons3DLeftSidePanel.visible = false
+                                changeTrunkView.start();
+                                carModel.openTrunkEvent.start();
+                            }
+                            else
+                               carModel.closeTrunkEvent.start();
+                        }
+                        else {
+                            console.log("3D Button Clicked!");
+                        }
+
+                    }
+                }
+                onPressed: (mouse) => {
+                    lastX = mouse.x
+                    lastY = mouse.y
+                }
+
+
+                onPositionChanged: (event) => {
+                    var dx = event.x - lastX
+                    var dy = event.y - lastY
+
+                    rotationX -= dy * 0.5   // Adjust vertical rotation (pitch)
+                    rotationY -= dx * 0.5   // Adjust horizontal rotation (yaw)
+
+                    cameraRoot.eulerRotation = Qt.vector3d(rotationX, rotationY, 0)  // Apply rotation
+                    console.log("rotationX:", rotationX);
+                    console.log("rotationY:", rotationY);
+                    lastX = event.x
+                    lastY = event.y
+                }
+                // onPositionChanged: (mouse) => {
+                //     if (mouse.buttons & Qt.LeftButton) {
+                //         let dx = mouse.x - lastX
+                //         let dy = mouse.y - lastY
+
+                //         rotationY += dx * 0.5
+                //         rotationX += dy * 0.5
+
+                //         lastX = mouse.x
+                //         lastY = mouse.y
+                //     }
+
+
+                // }
+
+                onWheel: (wheel) => {
+                    let zoomFactor = 0.1
+                    zoom -= wheel.angleDelta.y > 0 ? zoomFactor : -zoomFactor
+                    zoom = Math.max(0.5, Math.min(3, zoom))  // Limit zoom range
+                    cameraRoot.scale = Qt.vector3d(zoom, zoom, zoom)
+                }
             }
         }
     }
-    Button {
-        id: myButton
-        text: "Click Me"
-        visible: true
 
-        // Convert 3D position to 2D
-        property vector2d projectedPos: Qt.vector2d(0, 0)
-
-        function updateButtonPosition() {
-            if (!carModel.lineEnd) {
-                console.warn("❗ lineEnd is not available yet!");
-                return;
-            }
-
-            var pos3D = carModel.lineEnd.worldPosition;
-            var pos2D = sceneView.sceneToViewport(pos3D);
-            projectedPos = Qt.vector2d(pos2D.x, pos2D.y);
-        }
-
-        Component.onCompleted: updateButtonPosition()
-        onVisibleChanged: updateButtonPosition()
-
-        x: projectedPos.x - width / 2
-        y: projectedPos.y - height / 2
+    NumberAnimation {
+        id: changeFrunkView
+        target: cameraRoot
+        property: "eulerRotation.y"
+        to: -50
+        duration: 500
+        easing.type: Easing.InOutQuad
+    }
+    NumberAnimation {
+        id: changeTrunkView
+        target: cameraRoot
+        property: "eulerRotation.y"
+        to: 130
+        duration: 500
+        easing.type: Easing.InOutQuad
     }
 }
 
-// Rectangle {
-//     id: sideBar
-//     // width: dashboardHSC.width / 3.5
-//     // height: dashboardHSC.height - bottomBar.height
-//     color: "#000000"
-//     anchors.left: parent.left
-//     anchors.top: parent.top
-//     anchors.leftMargin: 0
-//     anchors.topMargin: 0
-
-//     Image {
-//         id: headLight
-//         anchors.top: sideBar.top
-//         anchors.right: sideBar.right
-//         anchors.rightMargin: 10
-//         height: parent.height / 18
-//         source: "/images/lights_off.png"
-
-//         fillMode: Image.PreserveAspectFit
-
-//         MouseArea {
-//             id: mouseAreaHeadLight
-//             anchors.fill: headLight
-
-//             onPressed: {
-//                 lightController.setLightControl(!lightController.lightControl)
-//             }
-//         }
-//         Connections {
-//             target: lightController
-//             function onLightControlChanged() {
-//                 headLight.source = lightController.lightControl ? "/images/lights_on.png" : "/images/lights_off.png"
-//             }
-//         }
-//     }
-
-//     Text {
-//         id: currentSpeed
-//         width: sideBar.width
-//         height: sideBar.height / 12
-//         anchors.top: sideBar.top
-//         anchors.topMargin: headLight.height
-//         font.pixelSize: height
-//         horizontalAlignment: Text.AlignHCenter
-//         font.family: "Arial"
-//         font.bold: true
-//         color: "white"
-//         text: qsTr("40")
-//     }
-
-//     Label {
-//         id: unitLabel
-//         width: sideBar.width
-//         height: sideBar.height / 40
-//         anchors.top: currentSpeed.bottom
-//         anchors.topMargin: 3
-//         color: "#858585"
-//         text: qsTr("KM/H")
-//         horizontalAlignment: Text.AlignHCenter
-//         font.pointSize: height / 1.8
-//         font.family: "Arial"
-//         // font.bold: true
-//     }
-
-//     Image {
-//         id: batteryIcon
-//         height: sideBar.height / 30
-//         width: sideBar.width / 10
-//         y: unitLabel.y - 3
-//         anchors.right: sideBar.right
-//         source: "/images/full_battery.png"
-//         fillMode: Image.PreserveAspectFit
-//     }
-
-//     Text {
-//         id: currentBattery
-//         width: sideBar.width
-//         height: sideBar.height / 40
-//         anchors.top: currentSpeed.bottom
-//         anchors.topMargin: 3
-//         anchors.right: batteryIcon.left
-//         anchors.rightMargin: 0
-//         color: "#858585"
-//         text: "318" + " mi"
-//         horizontalAlignment: Text.AlignRight
-//         font.pointSize: height / 1.8
-//         font.family: "Arial"
-//         // font.bold: true
-//     }
-
-//     // The bold edge or bottom border
-//     Rectangle {
-//         id: bottomLine
-//         width: parent.width
-//         height: currentSpeed.height / 40 // Adjust height to make the line as bold as needed
-//         color: "#858585" // Same color as the text or change to any color
-//         anchors.top: unitLabel.bottom
-//         anchors.topMargin: 2.5
-//     }
-
-//     Rectangle {
-//         id: bottomCenterLine
-//         width: parent.width / 15
-//         height: currentSpeed.height / 12 // Adjust height to make the line as bold as needed
-//         color: "#2c9f03" // Same color as the text or change to any color
-//         anchors.horizontalCenter: parent.horizontalCenter
-//         // anchors.verticalCenter: parent.verticalCenter
-//         anchors.top: unitLabel.bottom
-//         anchors.topMargin: 1
-//         radius: 5
-//     }
-
-//     Rectangle {
-//         width: parent.width / 10 // Width of the rectangle
-//         height: parent.height / 13 // Height of the rectangle
-//         color: "white" // Background color of the rectangle
-//         border.color: "black" // Optional: border color
-//         border.width: 1 // Optional: border width
-//         // radius: 5            // Optional: corner radius for rounded edges
-//         anchors.top: bottomLine.bottom
-//         anchors.right: parent.right
-//         Column {
-//             // anchors.fill: parent // Make the column fill the rectangle
-//             width: parent.width // Same width as the rectangle
-//             // height: 60         // Fixed height for the column
-//             anchors.top: parent.top
-//             anchors.topMargin: 3
-//             anchors.horizontalCenter: parent.horizontalCenter
-//             anchors.verticalCenter: parent.verticalCenter // Center the column vertically
-//             // First line of text
-//             Text {
-//                 text: "SPEED\nLIMIT"
-//                 font.pixelSize: parent.width / 4 // Size of the first line of text
-//                 horizontalAlignment: Text.AlignHCenter
-//                 anchors.horizontalCenter: parent.horizontalCenter
-//                 color: "black" // Text color
-//             }
-
-//             // Second line of text
-//             Text {
-//                 text: "80"
-//                 font.pixelSize: parent.width / 2 // Size of the second line of text
-//                 horizontalAlignment: Text.AlignHCenter
-//                 anchors.horizontalCenter: parent.horizontalCenter
-//                 color: "black" // Text color
-//             }
-//         }
-//     }
-
-//     Item {
-//         id: speedItem
-//         width: parent.width
-//         height: parent.height / 10
-//         anchors.top: bottomLine.bottom
-//         anchors.topMargin: 5
-//         // Property to store and control speed value
-//         // property int speed: 30
-
-//         Connections {
-//             target: speedController
-//             function onCarSpeedChanged() {
-//                 // to do something
-//             }
-//         }
-
-//         // Circle with the speed text inside
-//         Rectangle {
-//             id: speedCircle
-//             width: parent.width / 8
-//             height: width
-//             radius: width / 2
-//             color: "transparent" // Transparent to only show the border
-//             border.color: "#858585" // Edge color
-//             border.width: 3 // 5-pixel thick edge
-//             anchors.horizontalCenter: parent.horizontalCenter
-//             anchors.verticalCenter: parent.verticalCenter
-
-//             // Text displaying the speed inside the circle
-//             Text {
-//                 id: speedText
-//                 text: speedController.carSpeed
-//                 font.pixelSize: parent.height / 1.7 // Adjust to fit text inside the circle
-//                 anchors.centerIn: parent
-//                 color: "#858585"
-//                 font.bold: false
-//             }
-//         }
-
-//         // Minus button on the left side of the circle
-//         Rectangle {
-//             id: minusButton
-//             width: speedCircle.width / 2
-//             height: width
-//             radius: width / 2
-//             color: "black"
-//             anchors.right: speedCircle.left
-//             anchors.rightMargin: 10
-//             anchors.verticalCenter: speedCircle.verticalCenter
-//             Text {
-//                 text: "-"
-//                 font.pixelSize: speedText.font.pixelSize
-//                 anchors.centerIn: parent
-//                 color: "#858585"
-//                 font.bold: false
-//             }
-//             MouseArea {
-//                 anchors.fill: parent
-//                 onPressed: {
-//                     speedController.increaseCarSpeed(-1)
-
-//                 }
-//             }
-
-//         }
-
-//         // Plus button on the right side of the circle
-//         Rectangle {
-//             id: plusButton
-//             width: speedCircle.width / 2
-//             height: width
-//             radius: width / 2
-//             color: "black"
-//             anchors.left: speedCircle.right
-//             anchors.leftMargin: 10
-//             anchors.verticalCenter: speedCircle.verticalCenter
-//             Text {
-//                 text: "+"
-//                 font.pixelSize: 30
-//                 anchors.centerIn: parent
-//                 color: "#858585"
-//                 font.bold: false
-//             }
-//             MouseArea {
-//                 anchors.fill: parent
-//                 onPressed: {
-//                     speedController.increaseCarSpeed(1)
-
-//                 }
-//             }
-//         }
-//     }
-
-//     Image {
-//         id: xanhsm_car
-//         anchors.top: speedItem.bottom
-//         anchors.topMargin: parent.height / 5
-//         width: parent.width / 1.2
-//         anchors.horizontalCenter: parent.horizontalCenter
-//         source: "/images/xanhsm_car.png"
-//         fillMode: Image.PreserveAspectFit
-//     }
-// }

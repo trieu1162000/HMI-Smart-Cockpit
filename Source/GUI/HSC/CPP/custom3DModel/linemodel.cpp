@@ -21,7 +21,7 @@ void lineModel::setLine(float length) {
     float *vertices = reinterpret_cast<float *>(vertexData.data());
 
     vertices[0] = 0.0f; vertices[1] = 0.0f; vertices[2] = 0.0f; // Start point
-    vertices[3] = 0.0f; vertices[4] = 0.0f; vertices[5] = length; // End point
+    vertices[3] = 0.0f; vertices[4] = length; vertices[5] = 0.0f; // End point
 
     setStride(3 * sizeof(float));
     setVertexData(vertexData);

@@ -8,6 +8,7 @@
 #include "controllers/lockcontroller.h"
 #include "apptype.h"
 #include "custom3DModel/linemodel.h"
+#include "custom3DModel/text3Dmodel.h"
 
 int main(int argc, char *argv[])
 {
@@ -25,6 +26,11 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<Side>("com.example.side", 1, 0, "Side",
                                           "Enum values only");
     qmlRegisterType<lineModel>("Custom3D", 1, 0, "LineGeometry");
+    qmlRegisterType<text3DModel>("Custom3D", 1, 0, "Text3D");
+
+    // Register Global Singleton
+    engine.addImportPath("qrc:/");  // Ensure QML modules are found
+    engine.load(QUrl(QStringLiteral("qrc:/QML/GlobalVar.qml")));
 
     // Controller
     airConditionController ac_controller;
