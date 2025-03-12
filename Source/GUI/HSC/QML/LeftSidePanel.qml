@@ -317,11 +317,20 @@ Rectangle {
 
 
                 onPositionChanged: (event) => {
+                    buttons3DLeftSidePanel.visible = false
                     var dx = event.x - lastX
                     var dy = event.y - lastY
 
                     rotationX -= dy * 0.5   // Adjust vertical rotation (pitch)
                     rotationY -= dx * 0.5   // Adjust horizontal rotation (yaw)
+
+                   // Normalize rotationX to stay within -180 to 180
+                   if (rotationX > 180) rotationX -= 360
+                   if (rotationX < -180) rotationX += 360
+
+                   // Normalize rotationY to stay within -180 to 180
+                   if (rotationY > 180) rotationY -= 360
+                   if (rotationY < -180) rotationY += 360
 
                     cameraRoot.eulerRotation = Qt.vector3d(rotationX, rotationY, 0)  // Apply rotation
                     console.log("rotationX:", rotationX);
