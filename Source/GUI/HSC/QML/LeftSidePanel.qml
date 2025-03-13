@@ -14,8 +14,8 @@ Rectangle {
 
     property real lastX: 0
     property real lastY: 0
-    property real rotationX: 0
-    property real rotationY: 0
+    property alias rotationX: cameraRoot.eulerRotation.x
+    property alias rotationY: cameraRoot.eulerRotation.y
     property real zoom: 2/3
     Item {
         id: headerBar
@@ -80,6 +80,7 @@ Rectangle {
 
         }
     }
+
     ColumnLayout {
         Layout.preferredWidth: parent.width / 15
         Layout.preferredHeight: parent.height / 3
@@ -89,7 +90,7 @@ Rectangle {
         anchors.leftMargin: parent.width / 40
         Image {
             id: headLightIcon
-            source: "/images/head_light_on_32.png"
+            source: lightController.lightControl ? "/images/head_light_on_32.png" : "/images/head_light_off_32.png"
             Layout.alignment: Qt.AlignHCenter
             Layout.preferredHeight: parent.width / 1.2
             Layout.preferredWidth: Layout.preferredHeight  // Ensure it has a width
@@ -154,57 +155,26 @@ Rectangle {
         anchors.right: parent.right
         width: parent.width * 9 / 10
         height: parent.height * 3 / 34
-        Rectangle {
-            color: "transparent"
-            anchors.fill: parent
-            Image {
-                id: homeViewIcon
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottom: parent.bottom
-                height: sideBar.height / 40
-                width: height
-                source: "/images/home_white_32.png"
-                fillMode: Image.PreserveAspectFit
-                MouseArea {
-                    id: mouseAreaHomeViewIcon
-                    anchors.fill: homeViewIcon
-
-                    onPressed: {
-                        rotationCarView.start()
-                    }
-                }
-                SequentialAnimation {
-                    id: rotationCarView
-                    onStopped: {
-                        buttons3DLeftSidePanel.visible = true
-                    }
-                    NumberAnimation {
-                        target: cameraRoot
-                        property: "eulerRotation.x"
-                        to: 0
-                        duration: 800
-                        easing.type: Easing.InOutQuad
-                    }
-                    NumberAnimation {
-                        target: cameraRoot
-                        property: "eulerRotation.y"
-                        to: 0
-                        duration: 800
-                        easing.type: Easing.InOutQuad
-                    }
-                    NumberAnimation {
-                        target: cameraRoot
-                        property: "eulerRotation.z"
-                        to: 0
-                        duration: 800
-                        easing.type: Easing.InOutQuad
-                    }
-                }
-            }
-        }
         // Rectangle {
-        //     color: "White"
+        //     color: "transparent"
         //     anchors.fill: parent
+        //     Image {
+        //         id: homeViewIcon
+        //         anchors.horizontalCenter: parent.horizontalCenter
+        //         anchors.bottom: parent.bottom
+        //         height: sideBar.height / 40
+        //         width: height
+        //         source: "/images/home_white_32.png"
+        //         fillMode: Image.PreserveAspectFit
+        //         MouseArea {
+        //             id: mouseAreaHomeViewIcon
+        //             anchors.fill: homeViewIcon
+
+        //             onPressed: {
+        //                 rotationCarView.start()
+        //             }
+        //         }
+        //     }
         // }
     }
 
@@ -243,7 +213,7 @@ Rectangle {
             Node {
                 id: cameraRoot
                 position: Qt.vector3d(0, 0, 0)  // Center rotation at (0,0,0)
-                eulerRotation: Qt.vector3d(rotationX, rotationY, 0)  // Rotation properties
+                eulerRotation: Qt.vector3d(0, 0, 0)  // Rotation properties
                 scale: Qt.vector3d(zoom, zoom, zoom)
                 PerspectiveCamera {
                     id: camera
@@ -265,19 +235,23 @@ Rectangle {
             // }
 
             DirectionalLight {
-                eulerRotation.x: -30
-                eulerRotation.y: 30
+                eulerRotation.x: cameraRoot.eulerRotation.x
+                eulerRotation.y: cameraRoot.eulerRotation.y
             }
 
 
             // MouseArea for Picking
             MouseArea {
                 anchors.fill: parent
+                property bool dragging: false
                 onClicked: (mouse) => {
                     var result = carView3D.pick(mouse.x, mouse.y);
                     if (result.objectHit) {
                         var pickedObject = result.objectHit;
-                        pickedObject.isClicked = !pickedObject.isClicked;
+                       // Only toggle isClicked if the object has this property
+                        if ("isClicked" in pickedObject) {
+                           pickedObject.isClicked = !pickedObject.isClicked;
+                        }
                         if (pickedObject.objectName === "buttonOpenFrunk") {
                             console.log("Open Frunk Button Clicked!");
                             if(pickedObject.isClicked)
@@ -288,7 +262,6 @@ Rectangle {
                             }
                             else
                             {
-                                // cameraRoot.eulerRotation = Qt.vector3d(0, 0, 0)
                                 carModel.closeFrunkEvent.start();
                             }
                         } else if(pickedObject.objectName === "lockIconRoof") {
@@ -297,46 +270,58 @@ Rectangle {
                         } else if(pickedObject.objectName === "buttonOpenTrunk") {
                             console.log("Open Trunk Button Clicked!");
                             if(pickedObject.isClicked) {
+                                console.log("rotationX before 0:", rotationX);
+                                console.log("rotationY before 0:", rotationY);
                                 buttons3DLeftSidePanel.visible = false
                                 changeTrunkView.start();
                                 carModel.openTrunkEvent.start();
                             }
                             else
                                carModel.closeTrunkEvent.start();
-                        }
-                        else {
-                            console.log("3D Button Clicked!");
+                        } else if( (pickedObject.objectName === carModel.frunkCarMeshObjectName)
+                                || (pickedObject.objectName === carModel.trunkCarMeshObjectName) ) {
+                            rotationCarView.start();
+                        } else {
+                            console.log("3D Object Clicked!");
                         }
 
                     }
                 }
                 onPressed: (mouse) => {
+                    dragging = true;  // Start tracking movement
                     lastX = mouse.x
                     lastY = mouse.y
                 }
 
+                onReleased: (mouse) => {
+                    dragging = false;  // Stop tracking movement
+                }
 
                 onPositionChanged: (event) => {
-                    buttons3DLeftSidePanel.visible = false
-                    var dx = event.x - lastX
-                    var dy = event.y - lastY
+                    if(dragging) {
+                       console.log("rotationX before:", rotationX);
+                       console.log("rotationY before:", rotationY);
+                        buttons3DLeftSidePanel.visible = false
+                        var dx = event.x - lastX
+                        var dy = event.y - lastY
 
-                    rotationX -= dy * 0.5   // Adjust vertical rotation (pitch)
-                    rotationY -= dx * 0.5   // Adjust horizontal rotation (yaw)
+                        rotationX -= dy * 0.5   // Adjust vertical rotation (pitch)
+                        rotationY -= dx * 0.5   // Adjust horizontal rotation (yaw)
 
-                   // Normalize rotationX to stay within -180 to 180
-                   if (rotationX > 180) rotationX -= 360
-                   if (rotationX < -180) rotationX += 360
+                        // Normalize rotationX to stay within -180 to 180
+                        if (rotationX < -100) rotationX = -100
+                        if (rotationX > 10) rotationX = 10
 
-                   // Normalize rotationY to stay within -180 to 180
-                   if (rotationY > 180) rotationY -= 360
-                   if (rotationY < -180) rotationY += 360
+                        // Normalize rotationY to stay within -180 to 180
+                        if (rotationY > 180) rotationY -= 360
+                        if (rotationY < -180) rotationY += 360
 
-                    cameraRoot.eulerRotation = Qt.vector3d(rotationX, rotationY, 0)  // Apply rotation
-                    console.log("rotationX:", rotationX);
-                    console.log("rotationY:", rotationY);
-                    lastX = event.x
-                    lastY = event.y
+                        cameraRoot.eulerRotation = Qt.vector3d(rotationX, rotationY, 0)  // Apply rotation
+                        console.log("rotationX:", rotationX);
+                        console.log("rotationY:", rotationY);
+                        lastX = event.x
+                        lastY = event.y
+                    }
                 }
                 // onPositionChanged: (mouse) => {
                 //     if (mouse.buttons & Qt.LeftButton) {
@@ -363,6 +348,7 @@ Rectangle {
         }
     }
 
+    // Animations
     NumberAnimation {
         id: changeFrunkView
         target: cameraRoot
@@ -371,6 +357,7 @@ Rectangle {
         duration: 500
         easing.type: Easing.InOutQuad
     }
+
     NumberAnimation {
         id: changeTrunkView
         target: cameraRoot
@@ -378,6 +365,39 @@ Rectangle {
         to: 130
         duration: 500
         easing.type: Easing.InOutQuad
+    }
+
+    SequentialAnimation {
+        id: rotationCarView
+        onStopped: {
+            buttons3DLeftSidePanel.visible = true
+            console.log("rotationX before 1:", rotationX);
+            console.log("rotationY before 1:", rotationY);
+
+            console.log("camera rotationX before 1:", cameraRoot.eulerRotation.x);
+            console.log("camera rotationY before 1:", cameraRoot.eulerRotation.y);
+        }
+        NumberAnimation {
+            target: cameraRoot
+            property: "eulerRotation.x"
+            to: 0
+            duration: 800
+            easing.type: Easing.InOutQuad
+        }
+        NumberAnimation {
+            target: cameraRoot
+            property: "eulerRotation.y"
+            to: 0
+            duration: 800
+            easing.type: Easing.InOutQuad
+        }
+        NumberAnimation {
+            target: cameraRoot
+            property: "eulerRotation.z"
+            to: 0
+            duration: 800
+            easing.type: Easing.InOutQuad
+        }
     }
 }
 

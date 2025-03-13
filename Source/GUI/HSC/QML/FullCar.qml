@@ -12,6 +12,8 @@ Node {
     property alias closeTrunkEvent: closeTrunkAnimation
     property alias trunkCarMesh: polo17_trunk_polo17chrome_0
     property alias frunkCarMesh: polo17_hood_polo17black_0
+    property string frunkCarMeshObjectName: frunkCarMesh.objectName
+    property string trunkCarMeshObjectName: trunkCarMesh.objectName
 
     // Resources
     property url textureData: "/3DModel/myCar/maps/textureData.png"
@@ -1156,6 +1158,7 @@ Node {
                     Model {
                         id: polo17_hood_polo17black_0
                         objectName: "polo17_hood_polo17black_0"
+                        pickable: true
                         position: Qt.vector3d(0.00902269, -1.09553, 0.953161)
                         source: "/3DModel/myCar/meshes/polo17_hood_polo17black_0_mesh.mesh"
                         materials: [
@@ -1770,6 +1773,7 @@ Node {
                     Model {
                         id: polo17_trunk_polo17chrome_0
                         objectName: "polo17_trunk_polo17chrome_0"
+                        pickable: true
                         position: Qt.vector3d(0.000378233, 1.8316, 1.00383)
                         source: "/3DModel/myCar/meshes/polo17_trunk_polo17chrome_0_mesh.mesh"
                         materials: [
@@ -2703,174 +2707,6 @@ Node {
     //         Keyframe {
     //             frame: 1458.33
     //             value: Qt.quaternion(1, -2.4869e-14, 8.88178e-16, -1.49012e-08)
-    //         }
-    //     }
-    // }
-    // Timeline {
-    //     id: polo17_hood_polo17black_0Action_timeline
-    //     objectName: "polo17_hood_polo17black_0Action"
-    //     property real framesPerSecond: 1000
-    //     startFrame: 0
-    //     endFrame: 2084
-    //     currentFrame: 0
-    //     enabled: true
-    //     animations: TimelineAnimation {
-    //         duration: 2084
-    //         from: 0
-    //         to: 2084
-    //         running: true
-    //         loops: Animation.Infinite
-    //     }
-    //     KeyframeGroup {
-    //         target: polo17_hood_polo17black_0
-    //         property: "rotation"
-    //         Keyframe {
-    //             frame: 1458.33
-    //             value: Qt.quaternion(1, -2.4869e-14, 8.88178e-16, -1.49012e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 1500
-    //             value: Qt.quaternion(0.999988, -0.00491635, 1.00365e-10, -1.48008e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 1541.67
-    //             value: Qt.quaternion(0.999823, -0.0187998, 4.42952e-10, -1.45192e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 1583.33
-    //             value: Qt.quaternion(0.999184, -0.0403841, 8.83121e-10, -1.40872e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 1625
-    //             value: Qt.quaternion(0.997659, -0.0683887, 8.22008e-10, -1.3537e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 1666.67
-    //             value: Qt.quaternion(0.994839, -0.101462, -1.16349e-09, -1.29027e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 1708.33
-    //             value: Qt.quaternion(0.990411, -0.138154, 6.17242e-09, -1.22191e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 1750
-    //             value: Qt.quaternion(0.984225, -0.176922, 2.17232e-09, -1.90905e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 1791.67
-    //             value: Qt.quaternion(0.976355, -0.216173, 1.86653e-09, -1.08396e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 1833.33
-    //             value: Qt.quaternion(0.967118, -0.254329, 5.35655e-09, -2.50085e-09)
-    //         }
-    //         Keyframe {
-    //             frame: 1875
-    //             value: Qt.quaternion(0.957059, -0.289892, 1.1067e-09, -2.52089e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 1916.67
-    //             value: Qt.quaternion(0.946911, -0.321496, 8.5694e-09, -9.15945e-09)
-    //         }
-    //         Keyframe {
-    //             frame: 1958.33
-    //             value: Qt.quaternion(0.937523, -0.347924, 3.2207e-10, -1.67235e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 2000
-    //             value: Qt.quaternion(0.929792, -0.368086, 7.10702e-12, -1.65092e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 2041.67
-    //             value: Qt.quaternion(0.924591, -0.38096, 7.85202e-09, -8.32281e-09)
-    //         }
-    //         Keyframe {
-    //             frame: 2083.33
-    //             value: Qt.quaternion(0.922707, -0.385501, 1.58656e-08, -8.26281e-09)
-    //         }
-    //     }
-    // }
-    // Timeline {
-    //     id: polo17_trunk_polo17chrome_0Action_timeline
-    //     objectName: "polo17_trunk_polo17chrome_0Action"
-    //     property real framesPerSecond: 1000
-    //     startFrame: 0
-    //     endFrame: 2084
-    //     currentFrame: 0
-    //     enabled: true
-    //     animations: TimelineAnimation {
-    //         duration: 2084
-    //         from: 0
-    //         to: 2084
-    //         running: true
-    //         loops: Animation.Infinite
-    //     }
-    //     KeyframeGroup {
-    //         target: polo17_trunk_polo17chrome_0
-    //         property: "rotation"
-    //         Keyframe {
-    //             frame: 1458.33
-    //             value: Qt.quaternion(1, -2.4869e-14, 8.88178e-16, -1.49012e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 1500
-    //             value: Qt.quaternion(0.999978, 0.00664265, -1.32878e-10, -7.58664e-09)
-    //         }
-    //         Keyframe {
-    //             frame: 1541.67
-    //             value: Qt.quaternion(0.999676, 0.0254607, -4.9464e-10, -1.54269e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 1583.33
-    //             value: Qt.quaternion(0.998493, 0.054875, -7.72769e-11, -1.60463e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 1625
-    //             value: Qt.quaternion(0.99564, 0.0932763, 7.41003e-10, -1.68747e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 1666.67
-    //             value: Qt.quaternion(0.99031, 0.138874, -1.35455e-09, -1.7888e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 1708.33
-    //             value: Qt.quaternion(0.981859, 0.189612, -1.71348e-09, -1.14673e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 1750
-    //             value: Qt.quaternion(0.969981, 0.243181, -2.22345e-09, -2.03373e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 1791.67
-    //             value: Qt.quaternion(0.954836, 0.297133, 1.0182e-09, -6.07874e-09)
-    //         }
-    //         Keyframe {
-    //             frame: 1833.33
-    //             value: Qt.quaternion(0.937101, 0.349058, -7.64571e-09, -1.50917e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 1875
-    //             value: Qt.quaternion(0.917913, 0.396783, -8.59886e-09, -8.11737e-09)
-    //         }
-    //         Keyframe {
-    //             frame: 1916.67
-    //             value: Qt.quaternion(0.898735, 0.438493, -1.28532e-09, -1.72608e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 1958.33
-    //             value: Qt.quaternion(0.881186, 0.472769, -2.03608e-09, -9.6719e-09)
-    //         }
-    //         Keyframe {
-    //             frame: 2000
-    //             value: Qt.quaternion(0.866889, 0.498502, -1.12541e-08, -1.01983e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 2041.67
-    //             value: Qt.quaternion(0.857353, 0.514728, -1.17716e-08, -1.05303e-08)
-    //         }
-    //         Keyframe {
-    //             frame: 2083.33
-    //             value: Qt.quaternion(0.853915, 0.520412, -3.23474e-09, -1.93718e-08)
     //         }
     //     }
     // }
