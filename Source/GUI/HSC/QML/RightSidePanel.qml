@@ -221,7 +221,7 @@ Rectangle {
                     Text {
                         text: "GONE"
                         color: "#FFFFFF"
-                        font.pointSize: parent.parent.height / 6
+                        font.pixelSize: parent.parent.height / 6
                         font.bold: false
                     }
                     Item { Layout.fillWidth: true }
@@ -235,7 +235,7 @@ Rectangle {
                 Text {
                     text: "Rosé"
                     color: "#8f8f8f"
-                    font.pointSize: parent.parent.height / 7
+                    font.pixelSize: parent.parent.height / 7
                     // Layout.alignment: Qt.AlignHCenter
                     Layout.topMargin: 0
                 }

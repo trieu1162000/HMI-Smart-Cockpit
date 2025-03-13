@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick)
+find_package(Qt6 REQUIRED COMPONENTS Quick Quick3D Location)
 
 qt_standard_project_setup(REQUIRES 6.5)
 
@@ -25,6 +25,9 @@ qt_add_qml_module(appHSC
         QML/LeftSidePanel.qml
         QML/RightSidePanel.qml
         QML/BottomBar.qml
+        QML/FullCar.qml
+        QML/Buttons3D.qml
+
     SOURCES
         CPP/controllers/audiocontroller.cpp
         CPP/controllers/audiocontroller.h
@@ -37,6 +40,7 @@ qt_add_qml_module(appHSC
         CPP/controllers/airconditioncontroller.cpp
         CPP/controllers/airconditioncontroller.h
         CPP/apptype.h
+        CPP/custom3DModel/linemodel.h CPP/custom3DModel/linemodel.cpp
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -51,7 +55,7 @@ set_target_properties(appHSC PROPERTIES
 )
 
 target_link_libraries(appHSC
-    PRIVATE Qt6::Quick
+    PRIVATE Qt6::Quick Qt6::Location Qt::Quick3D
 )
 
 include(GNUInstallDirs)

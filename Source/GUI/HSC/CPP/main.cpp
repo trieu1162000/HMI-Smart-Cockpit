@@ -26,6 +26,10 @@ int main(int argc, char *argv[])
                                           "Enum values only");
     qmlRegisterType<lineModel>("Custom3D", 1, 0, "LineGeometry");
 
+    // Register Global Singleton
+    engine.addImportPath("qrc:/");  // Ensure QML modules are found
+    engine.load(QUrl(QStringLiteral("qrc:/QML/GlobalVar.qml")));
+
     // Controller
     airConditionController ac_controller;
     audioController a_controller;
