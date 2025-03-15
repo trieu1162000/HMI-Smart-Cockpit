@@ -65,9 +65,16 @@ Rectangle {
                 height: parent.height
                 spacing: parent.width / 50
                 Text {
-                    text: "318" + " mi"
+                    id: batteryText
+                    property bool showPercentage: false  // Flag to switch display mode
+
+                    text: showPercentage ? "98%" : "318 min"  // Toggle between mi and %
                     font.pixelSize: parent.height / 2
-                    color: "gray"
+                    color: "white"
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: batteryText.showPercentage = !batteryText.showPercentage  // Toggle state
+                    }
                 }
                 Image {
                     id: batteryIcon

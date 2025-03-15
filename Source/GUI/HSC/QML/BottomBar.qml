@@ -17,12 +17,8 @@ Rectangle {
         anchors.rightMargin: parent.height / 2  // Small right margin
         spacing: parent.height * 2  // Space between items
         height: parent.height
-        // 📌 Empty space (Instead of Spacing)
-        // Item {
-        //     Layout.fillWidth: true
-        // }
 
-        // 🚀 Vertically centered images
+        // Vertically centered images
         Image {
             // Layout.fillWidth: true  // Equal width share
             id: vehicleIcon
