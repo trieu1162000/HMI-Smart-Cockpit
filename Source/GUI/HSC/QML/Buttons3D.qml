@@ -83,8 +83,8 @@ Node {
         }
         // eulerRotation: Qt.vector3d(0, 90, 0)  // 90° around X-axis
 
-        property vector3d basePosition: Qt.vector3d( -1.464339256286621, 0.7760639190673828, 1.2156171798706055)
-        property vector3d endPosition: Qt.vector3d(-1.4131255149841309, 1.327085018157959, 1.1232330799102783)
+        property vector3d basePosition: Qt.vector3d(-1.3924, 0.0463, 1.4107)
+        property vector3d endPosition: Qt.vector3d(-1.3406, 0.5053, 1.5662)
         property vector3d worldPosition: position
 
         // Interpolated position based on eulerRotation.x
@@ -109,7 +109,7 @@ Node {
         property bool isClicked: false
 
         position: Qt.vector3d(
-            lineOpenTrunk.position.x - 0.25,
+            lineOpenTrunk.position.x + 0.25,
             lineOpenTrunk.position.y + lineGeometryOpenTrunk.length - 0.18,
             lineOpenTrunk.position.z - 0.001
         )
@@ -168,8 +168,8 @@ Node {
             length: dynamicLengthOpenTrunk
         }
 
-        property vector3d basePosition: Qt.vector3d(1.6168423891067505, 0.9714512825012207, -1.345872163772583)
-        property vector3d endPosition: Qt.vector3d(1.5874731540679932, 1.334545612335205, -1.3292546272277832)
+        property vector3d basePosition: Qt.vector3d(1.5645, 1.5, -0.6691)
+        property vector3d endPosition: Qt.vector3d(1.4911, 1.8000, -0.4712)
 
         // Interpolated position based on eulerRotation.x
         position: Qt.vector3d(
@@ -227,7 +227,7 @@ Node {
             length: lineLockRoofLength
         }
         // Interpolated position based on eulerRotation.x
-        position: Qt.vector3d(0.1779482364654541, 1.3987112045288086, -0.14315199851989746)
+        position: Qt.vector3d(0.2718, 1.3752, 0.4483)
         materials: DefaultMaterial {
             lighting: DefaultMaterial.NoLighting
             diffuseColor: "#8a8180"

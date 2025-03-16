@@ -208,6 +208,7 @@ Rectangle {
 
                 FullCar {
                     id: carModel
+                    eulerRotation: Qt.vector3d(30, 0, 0)
                 }
 
                 Buttons3D {
@@ -224,22 +225,11 @@ Rectangle {
                 scale: Qt.vector3d(zoom, zoom, zoom)
                 PerspectiveCamera {
                     id: camera
-                    position: Qt.vector3d(0, carView3D.height / 270, carView3D.height / 54)
+                    position: Qt.vector3d(0, 0.5, carView3D.height / 54)
                     clipNear: 0.01
                     clipFar: 10000
                 }
             }
-            // PerspectiveCamera {
-            //     id: sceneCamera
-            //     position: Qt.vector3d(0, carView3D.height / 270, carView3D.height / 54)
-
-            //     eulerRotation: Qt.vector3d(0, rotationX, 0)
-            //     clipNear: 0.01
-            //     clipFar: 10000
-            //     Component.onCompleted: {
-            //         // console.log("Parent height:", parent.parent.height);
-            //     }
-            // }
 
             DirectionalLight {
                 eulerRotation.x: cameraRoot.eulerRotation.x
@@ -254,6 +244,7 @@ Rectangle {
                 onClicked: (mouse) => {
                     var result = carView3D.pick(mouse.x, mouse.y);
                     if (result.objectHit) {
+                        cameraRoot.scale = Qt.vector3d(zoom, zoom, zoom)
                         var pickedObject = result.objectHit;
                        // Only toggle isClicked if the object has this property
                         if ("isClicked" in pickedObject) {
@@ -277,8 +268,6 @@ Rectangle {
                         } else if(pickedObject.objectName === "buttonOpenTrunk") {
                             console.log("Open Trunk Button Clicked!");
                             if(pickedObject.isClicked) {
-                                console.log("rotationX before 0:", rotationX);
-                                console.log("rotationY before 0:", rotationY);
                                 buttons3DLeftSidePanel.visible = false
                                 changeTrunkView.start();
                                 carModel.openTrunkEvent.start();
@@ -306,8 +295,7 @@ Rectangle {
 
                 onPositionChanged: (event) => {
                     if(dragging) {
-                       console.log("rotationX before:", rotationX);
-                       console.log("rotationY before:", rotationY);
+                        // carModel.eulerRotation = Qt.vector3d(0, 0, 0)
                         buttons3DLeftSidePanel.visible = false
                         var dx = event.x - lastX
                         var dy = event.y - lastY
@@ -330,20 +318,6 @@ Rectangle {
                         lastY = event.y
                     }
                 }
-                // onPositionChanged: (mouse) => {
-                //     if (mouse.buttons & Qt.LeftButton) {
-                //         let dx = mouse.x - lastX
-                //         let dy = mouse.y - lastY
-
-                //         rotationY += dx * 0.5
-                //         rotationX += dy * 0.5
-
-                //         lastX = mouse.x
-                //         lastY = mouse.y
-                //     }
-
-
-                // }
 
                 onWheel: (wheel) => {
                     let zoomFactor = 0.1
@@ -356,39 +330,59 @@ Rectangle {
     }
 
     // Animations
-    NumberAnimation {
+    SequentialAnimation {
         id: changeFrunkView
-        target: cameraRoot
-        property: "eulerRotation.y"
-        to: -50
-        duration: 500
-        easing.type: Easing.InOutQuad
+        NumberAnimation {
+            target: carModel
+            property: "eulerRotation.x"
+            to: 0
+            duration: 500
+            easing.type: Easing.InOutQuad
+        }
+        NumberAnimation {
+            target: cameraRoot
+            property: "eulerRotation.y"
+            to: -50
+            duration: 500
+            easing.type: Easing.InOutQuad
+        }
     }
-
-    NumberAnimation {
+    SequentialAnimation {
         id: changeTrunkView
-        target: cameraRoot
-        property: "eulerRotation.y"
-        to: 130
-        duration: 500
-        easing.type: Easing.InOutQuad
+        NumberAnimation {
+            target: carModel
+            property: "eulerRotation.x"
+            to: 0
+            duration: 500
+            easing.type: Easing.InOutQuad
+        }
+        NumberAnimation {
+            target: cameraRoot
+            property: "eulerRotation.y"
+            to: 130
+            duration: 500
+            easing.type: Easing.InOutQuad
+        }
     }
 
     SequentialAnimation {
         id: rotationCarView
         onStopped: {
             buttons3DLeftSidePanel.visible = true
-            console.log("rotationX before 1:", rotationX);
-            console.log("rotationY before 1:", rotationY);
-
-            console.log("camera rotationX before 1:", cameraRoot.eulerRotation.x);
-            console.log("camera rotationY before 1:", cameraRoot.eulerRotation.y);
         }
         NumberAnimation {
             target: cameraRoot
             property: "eulerRotation.x"
             to: 0
             duration: 800
+            easing.type: Easing.InOutQuad
+        }
+        NumberAnimation {
+            id: changeCarDefaultRotation
+            target: carModel
+            property: "eulerRotation.x"
+            to: 30
+            duration: 500
             easing.type: Easing.InOutQuad
         }
         NumberAnimation {
