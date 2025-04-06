@@ -10,7 +10,7 @@ https://github.com/user-attachments/assets/b4a34802-57af-4e19-aa35-9de229f67aa8
 
 ![image](https://github.com/user-attachments/assets/bf992951-512d-4c39-ad31-07c3fc93835d)
 
-- **05/04** – Music Player is being added.
+- **05/04 - 06/04** – Music Player is being added.
 
 ## 🎨 Credits  
 - **3D Rendering Tool**: Blender 4.3  
