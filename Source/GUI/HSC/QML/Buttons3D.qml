@@ -25,7 +25,7 @@ Node {
         property bool isClicked: false
 
         position: Qt.vector3d(
-            lineOpenFrunk.position.x - 0.18,
+            lineOpenFrunk.position.x - 0.25,
             lineOpenFrunk.position.y + lineGeometry.length - 0.15,
             lineOpenFrunk.position.z - 0.0005
         )
@@ -46,28 +46,29 @@ Node {
     Rectangle {
         id: textOverlayOpenFrunk
         width: 60
-        height: 30
+        height: 40
         color: "transparent"
         visible: false
         Column {
             anchors.centerIn: parent
             spacing: 0
-
             Text {
-                text: buttonOpenFrunk.isClicked ? "Close" : "Open"
-                font.pixelSize: 13
+                text: "Frunk"
+                font.pixelSize: 16
                 color: "#8a8180"
                 font.bold: true
-                horizontalAlignment: Text.AlignHCenter
+                horizontalAlignment: Text.AlignRight
+                anchors.right: parent.right
                 renderType: Text.NativeRendering
             }
 
             Text {
-                text: "Frunk"
-                font.pixelSize: 15
+                text: buttonOpenFrunk.isClicked ? "Close" : "Open"
+                font.pixelSize: 18
                 color: "white"
                 font.bold: true
-                horizontalAlignment: Text.AlignHCenter
+                horizontalAlignment: Text.AlignRight
+                anchors.right: parent.right
                 renderType: Text.NativeRendering
             }
         }
@@ -109,11 +110,11 @@ Node {
         property bool isClicked: false
 
         position: Qt.vector3d(
-            lineOpenTrunk.position.x + 0.25,
+            lineOpenTrunk.position.x + 0.35,
             lineOpenTrunk.position.y + lineGeometryOpenTrunk.length - 0.18,
             lineOpenTrunk.position.z - 0.001
         )
-        scale: Qt.vector3d(0.008, 0.005, 1)  // Adjust size
+        scale: Qt.vector3d(0.007, 0.0042, 1)  // Adjust size
 
         source: "#Rectangle"  // Simple plane for text background
 
@@ -131,8 +132,8 @@ Node {
     // Text rendered as a texture
     Rectangle {
         id: textOverlayOpenTrunk
-        width: 320
-        height: 160
+        width: 60
+        height: 40
         color: "transparent"
         visible: false
         Column {
@@ -140,20 +141,22 @@ Node {
             spacing: 0
 
             Text {
-                text: buttonOpenTrunk.isClicked ? "Close" : "Open"
-                font.pixelSize: 60
+                text: "Trunk"
+                font.pixelSize: 16
                 color: "#8a8180"
                 font.bold: true
-                horizontalAlignment: Text.AlignHCenter
+                horizontalAlignment: Text.AlignLeft
+                anchors.left: parent.left
                 renderType: Text.NativeRendering
             }
 
             Text {
-                text: "Trunk"
-                font.pixelSize: 65
+                text: buttonOpenTrunk.isClicked ? "Close" : "Open"
+                font.pixelSize: 18
                 color: "white"
                 font.bold: true
-                horizontalAlignment: Text.AlignHCenter
+                horizontalAlignment: Text.AlignLeft
+                anchors.left: parent.left
                 renderType: Text.NativeRendering
             }
         }
