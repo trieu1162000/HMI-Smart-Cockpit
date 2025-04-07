@@ -135,7 +135,7 @@ Node {
     PrincipledMaterial {
         id: polo17body_001_material
         objectName: "polo17body.001"
-        baseColor: "#ffffd4e0"
+        baseColor: "#f5f5f5"
         roughness: 0.25
         cullMode: PrincipledMaterial.NoCulling
         alphaMode: PrincipledMaterial.Opaque

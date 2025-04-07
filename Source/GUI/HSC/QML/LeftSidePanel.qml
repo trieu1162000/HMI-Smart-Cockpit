@@ -6,17 +6,24 @@ import Custom3D 1.0  // Import our C++ custom geometry
 
 Rectangle {
     id: sideBar
-    color: "#191818"
+    color: "white"
     anchors.left: parent.left
     anchors.top: parent.top
     anchors.leftMargin: 0
     anchors.topMargin: 0
-
+    // opacity: 0.95
     property real lastX: 0
     property real lastY: 0
     property alias rotationX: cameraRoot.eulerRotation.x
     property alias rotationY: cameraRoot.eulerRotation.y
     property real zoom: 2/3
+
+    Rectangle {
+        anchors.fill: parent
+        color: "black"
+        opacity: 0.89
+    }
+
     Item {
         id: headerBar
         anchors.top: parent.top
@@ -234,6 +241,8 @@ Rectangle {
             DirectionalLight {
                 eulerRotation.x: cameraRoot.eulerRotation.x
                 eulerRotation.y: cameraRoot.eulerRotation.y
+                // brightness: 1.5
+                // castsShadow: true
             }
 
 
