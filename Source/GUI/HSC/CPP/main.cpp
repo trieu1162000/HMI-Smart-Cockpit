@@ -1,6 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QQuickStyle>
 #include "controllers/airconditioncontroller.h"
 #include "controllers/audioController.h"
 #include "controllers/lightController.h"
@@ -12,7 +13,8 @@
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
-
+    // Use a fully customizable style
+    QQuickStyle::setStyle("Fusion");
     QQmlApplicationEngine engine;
     QObject::connect(
         &engine,

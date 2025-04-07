@@ -41,7 +41,7 @@
         <file>images/car.png</file>
         <file>images/curtain_shadow_handle.png</file>
         <file>images/down.png</file>
-        <file>images/eject.png</file>
+        <file>images/enlarge.png</file>
         <file>images/full_battery.png</file>
         <file>images/half_battery.png</file>
         <file>images/info.png</file>
@@ -232,5 +232,29 @@
         <file>images/textureData448.png</file>
         <file>images/tire_pressure_on_32.png</file>
         <file>images/home_white_32.png</file>
+        <file>images/playlist_black_32.png</file>
+        <file>images/playlist_white_32.png</file>
+        <file>images/more_white_32.png</file>
+        <file>images/more_black_32.png</file>
+        <file>images/enlarge_white_32.png</file>
+        <file>images/enlarge_black_32.png</file>
+        <file>images/pause_white_32.png</file>
+        <file>images/pause_black_32.png</file>
+        <file>images/continue_white_32.png</file>
+        <file>images/continue_black_32.png</file>
+        <file>images/previous_track_white_32.png</file>
+        <file>images/previous_track_black_32.png</file>
+        <file>images/next_track_white_32.png</file>
+        <file>images/next_track_black_32.png</file>
+        <file>images/shrink_white_32.png</file>
+        <file>images/shrink_black_32.png</file>
+        <file>images/repeat_white_32.png</file>
+        <file>images/shuffle_white_32.png</file>
+        <file>images/shuffle_black_32.png</file>
+        <file>images/repeat_once_white_32.png</file>
+        <file>images/repeat_once_black_32.png</file>
+        <file>images/repeat_black_32.png</file>
+        <file>images/user_white_32.png</file>
+        <file>images/user_black_32.png</file>
     </qresource>
 </RCC>

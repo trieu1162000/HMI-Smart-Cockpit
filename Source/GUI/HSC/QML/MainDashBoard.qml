@@ -40,10 +40,7 @@ Rectangle {
         id: rightSidePanel
         width: parent.width * 5 / 8
         height: parent.height * 9 / 10
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.rightMargin: 0
-        anchors.topMargin: 0
+
     }
 
 }
