@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Quick Quick3D Location)
+find_package(Qt6 REQUIRED COMPONENTS Quick Quick3D Location QuickControls2)
 
 qt_standard_project_setup(REQUIRES 6.5)
 
@@ -55,7 +55,7 @@ set_target_properties(appHSC PROPERTIES
 )
 
 target_link_libraries(appHSC
-    PRIVATE Qt6::Quick Qt6::Location Qt::Quick3D
+    PRIVATE Qt6::Quick Qt6::Location Qt::Quick3D Qt6::QuickControls2
 )
 
 include(GNUInstallDirs)
