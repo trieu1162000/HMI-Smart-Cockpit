@@ -6,40 +6,17 @@ import QtPositioning 5.15
 import QtQuick.Layouts
 import QtMultimedia 5.15
 
-// Audio {
-//     id: player
-//     source: tracks[currentTrackIndex].source
-//     onPositionChanged: {
-//         if (isFullScreen)
-//             progressSlider.value = position
-//         else
-//             progressSliderMini.value = position
-//     }
-
-//     onPlaybackStateChanged: {
-//         if (playbackState === Audio.StoppedState) {
-//             // Auto next song
-//             if (currentTrackIndex < tracks.length - 1) {
-//                 currentTrackIndex++
-//                 player.source = tracks[currentTrackIndex].source
-//                 player.play()
-//             }
-//         }
-//     }
-// }
-// Rectangle {
-//     id: rightSide
-//     anchors.right: parent.right
-//     anchors.top: parent.top
-//     anchors.rightMargin: 0
-//     anchors.topMargin: 0
-//     color: "black"
-
 Item {
     anchors.right: parent.right
     anchors.top: parent.top
     anchors.rightMargin: 0
     anchors.topMargin: 0
+    property int currentTrackIndex: -1
+
+    Utils {
+        id: helpers
+    }
+
     Item {
         id: topBar
         z: 1
@@ -222,7 +199,6 @@ Item {
         width: parent.width
         anchors.bottom: parent.bottom
         property bool isFullScreen: true
-        property int currentTrackIndex: 0
         // Danh sách bài hát
         property var tracks: [
             { title: "Ready to Rock", duration: 250, source: "ready_to_rock.mp3" },
@@ -259,17 +235,18 @@ Item {
                 color: "black"    // Full black color
             }
             Image {
-                id: currentSongImage
+                id: coverSongImage
                 anchors.fill: parent
-                source: "/images/music_gone.jpg"
+                source: songModel.currentSongImage
                 fillMode: Image.PreserveAspectCrop
                 visible: false
+                scale: 10
+                cache: false // Important: forces reload on change
             }
-
             MultiEffect {
                 id: blurEffect
                 anchors.fill: parent
-                source: currentSongImage
+                source: coverSongImage
                 blurEnabled: true
                 blur: 0.99             // từ 0.0 (không mờ) đến 1.0 (mờ tối đa)
                 brightness: -0.0       // bạn có thể tinh chỉnh sáng/tối
@@ -278,7 +255,7 @@ Item {
 
             Rectangle {
                 anchors.fill: parent
-                color: "black"    // Full black color
+                color: "transparent"    // Full black color
                 opacity: 0.4      // Minimum opacity (completely transparent)
             }
 
@@ -384,11 +361,12 @@ Item {
                     Layout.alignment: Qt.AlignVCenter
                     Image {
                         id: sourceItem
-                        source: "/images/music_gone.jpg" // Replace with your image
+                        source: songModel.currentSongImage
                         anchors.centerIn: parent
                         width: parent.width / 1.8
                         height: width
                         visible: false
+                        cache: false // Important: forces reload on change
                     }
 
                     MultiEffect {
@@ -421,15 +399,7 @@ Item {
                     Layout.preferredHeight: parent.height
                     Layout.alignment: Qt.AlignVCenter
 
-                    model: ListModel {
-                        ListElement { title: "Ave Maria"; artist: "Beyoncé"; duration: "3:42"; liked: true; playing: false }
-                        ListElement { title: "Halo"; artist: "Beyoncé"; duration: "4:22"; liked: false; playing: false }
-                        ListElement { title: "Single Ladies (Put a Ring on It)"; artist: "Beyoncé"; duration: "3:18"; liked: false; playing: false }
-                        ListElement { title: "Video Phone"; artist: "Beyoncé"; duration: "3:35"; liked: false; playing: false }
-                        ListElement { title: "Sweet Dreams"; artist: "Beyoncé"; duration: "3:28"; liked: false; playing: false }
-                        ListElement { title: "Satellites"; artist: "Beyoncé"; duration: "3:18"; liked: false; playing: false }
-                        ListElement { title: "Broken-Hearted Girl"; artist: "Beyoncé"; duration: "4:39"; liked: true; playing: false }
-                    }
+                    model: songModel
 
                     delegate: Item {
                         width: ListView.view.width
@@ -450,19 +420,17 @@ Item {
                             color: "transparent"
 
                             RowLayout {
+                                id: listSongRowLayout
                                 anchors.verticalCenter: parent.verticalCenter
                                 spacing: 0
-                                width: parent.width / 1.2
+                                width: parent.width / 1.15
 
-                                // Icon playing
                                 Text {
                                     text: playing ? "\u25B6" : ""
                                     color: "#888"
                                     font.pixelSize: listViewSongs.height / 30
-                                    verticalAlignment: Text.AlignVCenter
                                 }
 
-                                // Title and artist stacked vertically
                                 ColumnLayout {
                                     spacing: parent.height / 10
                                     Layout.fillWidth: true
@@ -472,6 +440,9 @@ Item {
                                         font.pixelSize: listViewSongs.height / 30
                                         color: "white"
                                         elide: Text.ElideRight
+                                        wrapMode: Text.NoWrap
+                                        Layout.fillWidth: true
+                                        Layout.preferredWidth: listSongRowLayout.width
                                     }
 
                                     Text {
@@ -479,12 +450,14 @@ Item {
                                         font.pixelSize: listViewSongs.height / 37
                                         color: "#bbbbbb"
                                         elide: Text.ElideRight
+                                        wrapMode: Text.NoWrap
+                                        Layout.fillWidth: true
+                                        Layout.preferredWidth: listSongRowLayout.width
                                     }
                                 }
 
                                 Item { Layout.fillWidth: true }
 
-                                // More icon
                                 Image {
                                     source: "/images/more_white_32.png"
                                     Layout.preferredHeight: listViewSongs.height / 20
@@ -493,6 +466,16 @@ Item {
                             }
                         }
 
+                        MouseArea {
+                            anchors.fill: parent
+                            z: 999  // Make sure it's on top
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                currentTrackIndex = index
+                                songModel.playSongAt(index)
+                                console.log("clicked song at", index)
+                            }
+                        }
                     }
                 }
 
@@ -518,8 +501,8 @@ Item {
                     height: 3
 
                     from: 0
-                    to: 100
-                    value: 10 // starting value
+                    to: songModel.currentSongDuration
+                    value: songModel.currentSongProgress
 
                     // Remove default styling
                     background: Rectangle {
@@ -566,29 +549,39 @@ Item {
                     Layout.alignment: Qt.AlignVCenter
                     spacing: bottomBar.width / 30
                     Item {
-                        // color: "black"
                         Layout.preferredHeight: bottomBar.height
-
                         Layout.preferredWidth: 0
                     }
 
                     ColumnLayout {
+                        clip: true
                         spacing: 2
                         Layout.alignment: Qt.AlignVCenter
-                        // Layout.preferredWidth: bottomBar.width / 20   // Or any size you want
+                        Layout.preferredWidth: progressBar.width / 2.5  // fixed width
+                        Layout.maximumWidth: progressBar.width / 2.5     // cap max width
 
                         Text {
-                            text: "Single Ladies"
+                            text: songModel.currentSongTitle
                             color: "white"
                             font.pixelSize: 10
+                            elide: Text.ElideRight
+                            wrapMode: Text.NoWrap
+                            Layout.fillWidth: true
+                            Layout.preferredWidth: parent.width
                         }
+
                         Text {
-                            text: "Beyoncé"
+                            text: songModel.currentSongArtist
                             color: "#bbbbbb"
                             font.pixelSize: 9
+                            elide: Text.ElideRight
+                            wrapMode: Text.NoWrap
+                            Layout.fillWidth: true
+                            Layout.preferredWidth: parent.width
                         }
                     }
-                    Item { Layout.fillWidth: true }
+
+                    // Item { Layout.fillWidth: true }
 
                     RowLayout {
                         spacing: parent.width / 20
@@ -604,6 +597,13 @@ Item {
                                 fillMode: Image.PreserveAspectFit  // Keeps aspect ratio
 
                             }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    currentTrackIndex--
+                                    songModel.playSongAt(currentTrackIndex)
+                                }
+                            }
                         }
 
                         Rectangle {
@@ -613,9 +613,15 @@ Item {
                             smooth: true
                             Image {
                                 id: playIcon
-                                source: "/images/continue_white_32.png"
+                                source: songModel.isPlaying ? "/images/pause_white_32.png" : "/images/continue_white_32.png"
                                 anchors.fill: parent     // Image fills the Rectangle
                                 fillMode: Image.PreserveAspectFit  // Keeps aspect ratio
+                            }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    songModel.togglePlayPause()
+                                }
                             }
                         }
 
@@ -629,6 +635,13 @@ Item {
                                 source: "/images/next_track_white_32.png"
                                 anchors.fill: parent     // Image fills the Rectangle
                                 fillMode: Image.PreserveAspectFit  // Keeps aspect ratio
+                            }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    currentTrackIndex++
+                                    songModel.playSongAt(currentTrackIndex)
+                                }
                             }
                         }
                     }
@@ -657,6 +670,7 @@ Item {
             }
 
         }
+
         Rectangle {
             id: musicBar
             color: "transparent"
@@ -681,7 +695,7 @@ Item {
 
             Image {
                 id: sourceGoneAva
-                source: "/images/music_gone.jpg"
+                source: songModel.currentSongImage
                 anchors.left: musicBar.left
                 height: musicBar.height
                 width: height
@@ -728,7 +742,7 @@ Item {
                         Layout.alignment: Qt.AlignHCenter
 
                         Text {
-                            text: "GONE"
+                            text: songModel.currentSongTitle
                             color: "#FFFFFF"
                             font.pixelSize: parent.parent.height / 6
                             font.bold: false
@@ -742,7 +756,7 @@ Item {
                     }
 
                     Text {
-                        text: "Rosé"
+                        text: songModel.currentSongArtist
                         color: "#8f8f8f"
                         font.pixelSize: parent.parent.height / 7
                         // Layout.alignment: Qt.AlignHCenter
@@ -756,14 +770,17 @@ Item {
                         RowLayout {
                             Layout.alignment: Qt.AlignHCenter
                             spacing: 0
+
                             Text {
-                                text: "2:45"
+                                text: helpers.formatTime(songModel.currentSongProgress)
                                 color: "#8f8f8f"
                                 font.pixelSize: parent.parent.parent.height / 6
                             }
+
                             Item { Layout.fillWidth: true }
+
                             Text {
-                                text: "4:58"
+                                text: helpers.formatTime(songModel.currentSongDuration)
                                 color: "#8f8f8f"
                                 font.pixelSize: parent.parent.parent.height / 6
                             }
@@ -775,8 +792,8 @@ Item {
                             height: 3
 
                             from: 0
-                            to: 100
-                            value: 10 // starting value
+                            to: songModel.currentSongDuration
+                            value: songModel.currentSongProgress
 
                             // Remove default styling
                             background: Rectangle {
@@ -844,9 +861,15 @@ Item {
                 }
 
                 Image {
-                    source: "/images/continue_white_32.png"
+                    source: playIcon.source
                     width: height
                     height: musicBar.height / 4.5
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            songModel.togglePlayPause()
+                        }
+                    }
                 }
 
                 Image {
