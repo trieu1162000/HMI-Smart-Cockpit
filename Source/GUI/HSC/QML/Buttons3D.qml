@@ -45,7 +45,7 @@ Node {
     // Text rendered as a texture
     Rectangle {
         id: textOverlayOpenFrunk
-        width: 60
+        width: 70
         height: 40
         color: "transparent"
         visible: false
@@ -79,7 +79,7 @@ Node {
         geometry: LineGeometry {
             id: lineGeometry
             property real varLength: 1.2
-            property real dynamicLengthOpenFrunk: varLength + 1.2 * (varLength - varLength/2)*(frunkMesh.eulerRotation.x / 40)
+            property real dynamicLengthOpenFrunk: varLength + 1.1 * (varLength - varLength/2)*(frunkMesh.eulerRotation.x / 40)
             length: dynamicLengthOpenFrunk
         }
         // eulerRotation: Qt.vector3d(0, 90, 0)  // 90° around X-axis
