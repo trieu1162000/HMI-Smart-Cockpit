@@ -37,10 +37,12 @@ public:
     Q_PROPERTY(QUrl currentSongImage READ currentSongImage NOTIFY currentSongImageChanged FINAL)
     Q_PROPERTY(QString currentSongTitle READ currentSongTitle NOTIFY currentSongTitleChanged FINAL)
     Q_PROPERTY(QString currentSongArtist READ currentSongArtist NOTIFY currentSongArtistChanged FINAL)
-    Q_PROPERTY(qint64 currentSongProgress READ currentSongProgress NOTIFY currentSongProgressChanged FINAL)
+    Q_PROPERTY(qint64 currentSongProgress READ currentSongProgress WRITE setCurrentSongProgress NOTIFY currentSongProgressChanged FINAL)
     Q_PROPERTY(qint64 currentSongDuration READ currentSongDuration NOTIFY currentSongDurationChanged FINAL)
     Q_PROPERTY(bool isPlaying READ isPlaying NOTIFY isPlayingChanged FINAL)
+    Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
 
+    Q_INVOKABLE void setCurrentSongProgress(qreal value);
     Q_INVOKABLE void loadFromFolder(const QString &path);
     Q_INVOKABLE void playSongAt(int index);
     Q_INVOKABLE void togglePlayPause();
@@ -64,6 +66,7 @@ signals:
     void currentSongProgressChanged();
     void currentSongDurationChanged();
     void isPlayingChanged();
+    void countChanged();
 
 private:
     QVector<songItem> m_songs;

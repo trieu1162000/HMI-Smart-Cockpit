@@ -181,3 +181,12 @@ void songModel::togglePlayPause() {
         m_player->play();
     }
 }
+
+void songModel::setCurrentSongProgress(qreal value)
+{
+    if (!m_player)
+        return;
+    else {
+        m_player->setPosition(static_cast<qint64>(value)); // if value is in seconds
+    }
+}
