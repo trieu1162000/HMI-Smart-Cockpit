@@ -6,40 +6,17 @@ import QtPositioning 5.15
 import QtQuick.Layouts
 import QtMultimedia 5.15
 
-// Audio {
-//     id: player
-//     source: tracks[currentTrackIndex].source
-//     onPositionChanged: {
-//         if (isFullScreen)
-//             progressSlider.value = position
-//         else
-//             progressSliderMini.value = position
-//     }
-
-//     onPlaybackStateChanged: {
-//         if (playbackState === Audio.StoppedState) {
-//             // Auto next song
-//             if (currentTrackIndex < tracks.length - 1) {
-//                 currentTrackIndex++
-//                 player.source = tracks[currentTrackIndex].source
-//                 player.play()
-//             }
-//         }
-//     }
-// }
-// Rectangle {
-//     id: rightSide
-//     anchors.right: parent.right
-//     anchors.top: parent.top
-//     anchors.rightMargin: 0
-//     anchors.topMargin: 0
-//     color: "black"
-
 Item {
     anchors.right: parent.right
     anchors.top: parent.top
     anchors.rightMargin: 0
     anchors.topMargin: 0
+    property int currentTrackIndex: -1
+
+    Utils {
+        id: helpers
+    }
+
     Item {
         id: topBar
         z: 1
@@ -138,7 +115,9 @@ Item {
 
     Item {
         id: mapItem
+        z: 0
         anchors.fill: parent
+        enabled: true
         Rectangle {
             z: 1
             anchors.fill: parent
@@ -222,27 +201,22 @@ Item {
         width: parent.width
         anchors.bottom: parent.bottom
         property bool isFullScreen: true
-        property int currentTrackIndex: 0
-        // Danh sách bài hát
-        property var tracks: [
-            { title: "Ready to Rock", duration: 250, source: "ready_to_rock.mp3" },
-            { title: "Do it All", duration: 210, source: "do_it_all.mp3" },
-            { title: "The Real", duration: 225, source: "the_real.mp3" }
-        ]
 
-        // States chuyển giữa full và mini
+        // States switch between full và small
         states: [
             State {
                 name: "fullMusicPlayer"
                 when: musicPlayer.isFullScreen
                 PropertyChanges { target: fullMusicView; visible: true }
                 PropertyChanges { target: musicBar; visible: false }
+                PropertyChanges { target: map; enabled: false }
             },
             State {
                 name: "miniMusicPlayer"
                 when: !musicPlayer.isFullScreen
                 PropertyChanges { target: fullMusicView; visible: false }
                 PropertyChanges { target: musicBar; visible: true }
+                PropertyChanges { target: map; enabled: true }
             }
         ]
 
@@ -259,26 +233,27 @@ Item {
                 color: "black"    // Full black color
             }
             Image {
-                id: currentSongImage
+                id: coverSongImage
                 anchors.fill: parent
-                source: "/images/music_gone.jpg"
+                source: songModel.currentSongImage
                 fillMode: Image.PreserveAspectCrop
                 visible: false
+                scale: 10
+                cache: false // Important: forces reload on change
             }
-
             MultiEffect {
                 id: blurEffect
                 anchors.fill: parent
-                source: currentSongImage
+                source: coverSongImage
                 blurEnabled: true
-                blur: 0.99             // từ 0.0 (không mờ) đến 1.0 (mờ tối đa)
-                brightness: -0.0       // bạn có thể tinh chỉnh sáng/tối
+                blur: 0.99
+                brightness: -0.0
                 contrast: -0.6
             }
 
             Rectangle {
                 anchors.fill: parent
-                color: "black"    // Full black color
+                color: "transparent"    // Full black color
                 opacity: 0.4      // Minimum opacity (completely transparent)
             }
 
@@ -371,7 +346,7 @@ Item {
 
             // Main Content
             RowLayout {
-                id: rowLayout
+                id: contentRowLayout
                 anchors.top: musicPlayerTopBar.bottom
                 anchors.topMargin: musicPlayer.height / 20
                 width: parent.width
@@ -379,16 +354,17 @@ Item {
 
                 Item {
                     id: imageContainerCurrentSong
-                    Layout.preferredWidth: parent.height
-                    Layout.preferredHeight: parent.height
+                    Layout.preferredWidth: parent.height / 1.2
+                    Layout.preferredHeight: parent.height / 1.2
                     Layout.alignment: Qt.AlignVCenter
                     Image {
                         id: sourceItem
-                        source: "/images/music_gone.jpg" // Replace with your image
+                        source: songModel.currentSongImage
                         anchors.centerIn: parent
-                        width: parent.width / 1.8
+                        width: parent.width / 1.7
                         height: width
                         visible: false
+                        cache: false // Important: forces reload on change
                     }
 
                     MultiEffect {
@@ -418,19 +394,11 @@ Item {
                 ListView {
                     id: listViewSongs
                     Layout.preferredWidth: parent.width - imageContainerCurrentSong.width
-                    Layout.preferredHeight: parent.height
+                    Layout.preferredHeight: parent.height / 1.2
                     Layout.alignment: Qt.AlignVCenter
 
-                    model: ListModel {
-                        ListElement { title: "Ave Maria"; artist: "Beyoncé"; duration: "3:42"; liked: true; playing: false }
-                        ListElement { title: "Halo"; artist: "Beyoncé"; duration: "4:22"; liked: false; playing: false }
-                        ListElement { title: "Single Ladies (Put a Ring on It)"; artist: "Beyoncé"; duration: "3:18"; liked: false; playing: false }
-                        ListElement { title: "Video Phone"; artist: "Beyoncé"; duration: "3:35"; liked: false; playing: false }
-                        ListElement { title: "Sweet Dreams"; artist: "Beyoncé"; duration: "3:28"; liked: false; playing: false }
-                        ListElement { title: "Satellites"; artist: "Beyoncé"; duration: "3:18"; liked: false; playing: false }
-                        ListElement { title: "Broken-Hearted Girl"; artist: "Beyoncé"; duration: "4:39"; liked: true; playing: false }
-                    }
-
+                    model: songModel
+                    clip: true
                     delegate: Item {
                         width: ListView.view.width
                         height: listViewSongs.height / 8
@@ -450,49 +418,63 @@ Item {
                             color: "transparent"
 
                             RowLayout {
+                                id: listSongRowLayout
                                 anchors.verticalCenter: parent.verticalCenter
                                 spacing: 0
-                                width: parent.width / 1.2
+                                width: parent.width / 1.15
 
-                                // Icon playing
                                 Text {
-                                    text: playing ? "\u25B6" : ""
+                                    // text: playing ? "\u25B6" : ""
+                                    text: ""
                                     color: "#888"
-                                    font.pixelSize: listViewSongs.height / 30
-                                    verticalAlignment: Text.AlignVCenter
+                                    font.pixelSize: contentRowLayout.height / 30
                                 }
 
-                                // Title and artist stacked vertically
                                 ColumnLayout {
                                     spacing: parent.height / 10
                                     Layout.fillWidth: true
 
                                     Text {
                                         text: title
-                                        font.pixelSize: listViewSongs.height / 30
+                                        font.pixelSize: contentRowLayout.height / 30
                                         color: "white"
                                         elide: Text.ElideRight
+                                        wrapMode: Text.NoWrap
+                                        Layout.fillWidth: true
+                                        Layout.preferredWidth: listSongRowLayout.width
                                     }
 
                                     Text {
                                         text: artist
-                                        font.pixelSize: listViewSongs.height / 37
+                                        font.pixelSize: contentRowLayout.height / 37
                                         color: "#bbbbbb"
                                         elide: Text.ElideRight
+                                        wrapMode: Text.NoWrap
+                                        Layout.fillWidth: true
+                                        Layout.preferredWidth: listSongRowLayout.width
                                     }
                                 }
 
                                 Item { Layout.fillWidth: true }
 
-                                // More icon
                                 Image {
                                     source: "/images/more_white_32.png"
-                                    Layout.preferredHeight: listViewSongs.height / 20
+                                    Layout.preferredHeight: contentRowLayout.height / 20
                                     Layout.preferredWidth: Layout.preferredHeight
                                 }
                             }
                         }
 
+                        MouseArea {
+                            anchors.fill: parent
+                            z: 999  // Make sure it's on top
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                currentTrackIndex = index
+                                songModel.playSongAt(index)
+                                console.log("clicked song at", index)
+                            }
+                        }
                     }
                 }
 
@@ -508,6 +490,18 @@ Item {
                 anchors.bottom: parent.bottom
                 color: "transparent"  // Màu nền gần giống
                 // opacity: 0.4      // Minimum opacity (completely transparent)
+                // This MouseArea captures input ONLY within the music screen area
+                MouseArea {
+                    id: fullMusicBarBlocker
+                    anchors.fill: parent
+                    preventStealing: true
+                    propagateComposedEvents: false
+                    hoverEnabled: true
+
+                    onPressed: mouse => mouse.accepted = true
+                    onReleased: mouse => mouse.accepted = true
+                    onPositionChanged: mouse => mouse.accepted = true
+                }
 
                 // Progress bar (trên cùng)
                 Slider {
@@ -518,8 +512,25 @@ Item {
                     height: 3
 
                     from: 0
-                    to: 100
-                    value: 10 // starting value
+                    to: songModel.currentSongDuration
+                    value: songModel.currentSongProgress
+
+                    // onMoved: {
+                    //     // console.log("Set progress clicked")
+                    //     songModel.setCurrentSongProgress(value)
+                    // }
+                    // Click anywhere to set progress
+                    MouseArea {
+                        width: parent.width
+                        height: parent.height * 5
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter: parent.verticalCenter
+                        onPressed: (mouse) => {
+                            const ratio = mouse.x / width;
+                            const newValue = progressBar.from + ratio * (progressBar.to - progressBar.from);
+                            songModel.setCurrentSongProgress(newValue);
+                        }
+                    }
 
                     // Remove default styling
                     background: Rectangle {
@@ -557,6 +568,32 @@ Item {
                         x: progressBar.width * (progressBar.value / progressBar.to) - width / 2
                         y: (parent.height - height) / 2
                         z: 1
+
+                        property bool dragging: false  // to track drag state
+
+                        MouseArea {
+                            id: handleMouseArea
+                            anchors.centerIn: parent
+                            width: 30
+                            height: 30
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onPressed: mouse => {
+                                parent.dragging = true;
+                            }
+
+                            onReleased: mouse => {
+                                parent.dragging = false;
+                            }
+
+                            onPositionChanged: mouse => {
+                                if (parent.dragging) {
+                                    const newValue = progressBar.from + ((mouse.x + parent.x) / progressBar.width) * (progressBar.to - progressBar.from);
+                                    const tempValue = Math.max(progressBar.from, Math.min(progressBar.to, newValue));
+                                    songModel.setCurrentSongProgress(tempValue);
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -566,29 +603,127 @@ Item {
                     Layout.alignment: Qt.AlignVCenter
                     spacing: bottomBar.width / 30
                     Item {
-                        // color: "black"
                         Layout.preferredHeight: bottomBar.height
-
                         Layout.preferredWidth: 0
                     }
 
                     ColumnLayout {
+                        clip: true
                         spacing: 2
                         Layout.alignment: Qt.AlignVCenter
-                        // Layout.preferredWidth: bottomBar.width / 20   // Or any size you want
+                        Layout.preferredWidth: progressBar.width / 2.5
+                        Layout.maximumWidth: progressBar.width / 2.5
 
-                        Text {
-                            text: "Single Ladies"
-                            color: "white"
-                            font.pixelSize: 10
+                        // === Title Marquee ===
+                        Item {
+                            Layout.fillWidth: true
+                            height: 14  // Adjust to your font size
+
+                            Rectangle {
+                                id: titleClip
+                                anchors.fill: parent
+                                clip: true
+                                color: "transparent"
+
+                                Item {
+                                    id: titleContainer
+                                    width: titleMetrics.width
+                                    height: parent.height
+
+                                    Text {
+                                        id: titleText
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        text: songModel.currentSongTitle
+                                        color: "white"
+                                        font.pixelSize: 10
+                                        wrapMode: Text.NoWrap
+                                    }
+
+                                    NumberAnimation on x {
+                                        id: titleAnim
+                                        from: 0
+                                        to: -(titleMetrics.width - titleClip.width)
+                                        duration: 8000
+                                        loops: Animation.Infinite
+                                        running: titleMetrics.width > titleClip.width
+                                    }
+
+                                    onWidthChanged: {
+                                        // Restart animation if text width changes
+                                        if (titleMetrics.width > titleClip.width) {
+                                            x = 0
+                                            titleAnim.restart()
+                                        } else {
+                                            x = 0
+                                            titleAnim.stop()
+                                        }
+                                    }
+                                }
+                            }
+
+                            TextMetrics {
+                                id: titleMetrics
+                                font: titleText.font
+                                text: titleText.text
+                            }
                         }
-                        Text {
-                            text: "Beyoncé"
-                            color: "#bbbbbb"
-                            font.pixelSize: 9
+
+                        // === Artist Marquee ===
+                        Item {
+                            Layout.fillWidth: true
+                            height: 13  // Adjust to your font size
+
+                            Rectangle {
+                                id: artistClip
+                                anchors.fill: parent
+                                clip: true
+                                color: "transparent"
+
+                                Item {
+                                    id: artistContainer
+                                    width: artistMetrics.width
+                                    height: parent.height
+
+                                    Text {
+                                        id: artistText
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        text: songModel.currentSongArtist
+                                        color: "#bbbbbb"
+                                        font.pixelSize: 9
+                                        wrapMode: Text.NoWrap
+                                    }
+
+                                    NumberAnimation on x {
+                                        id: artistAnim
+                                        from: 0
+                                        to: -(artistMetrics.width - artistClip.width)
+                                        duration: 8000
+                                        loops: Animation.Infinite
+                                        running: artistMetrics.width > artistClip.width
+                                    }
+
+                                    onWidthChanged: {
+                                        if (artistMetrics.width > artistClip.width) {
+                                            x = 0
+                                            artistAnim.restart()
+                                        } else {
+                                            x = 0
+                                            artistAnim.stop()
+                                        }
+                                    }
+                                }
+                            }
+
+                            TextMetrics {
+                                id: artistMetrics
+                                font: artistText.font
+                                text: artistText.text
+                            }
                         }
                     }
-                    Item { Layout.fillWidth: true }
+
+
+                    // Item { Layout.fillWidth: true }
 
                     RowLayout {
                         spacing: parent.width / 20
@@ -604,6 +739,15 @@ Item {
                                 fillMode: Image.PreserveAspectFit  // Keeps aspect ratio
 
                             }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    currentTrackIndex--
+                                    if (currentTrackIndex < 0)
+                                        currentTrackIndex = songModel.count - 1
+                                    songModel.playSongAt(currentTrackIndex)
+                                }
+                            }
                         }
 
                         Rectangle {
@@ -613,9 +757,15 @@ Item {
                             smooth: true
                             Image {
                                 id: playIcon
-                                source: "/images/continue_white_32.png"
+                                source: songModel.isPlaying ? "/images/pause_white_32.png" : "/images/continue_white_32.png"
                                 anchors.fill: parent     // Image fills the Rectangle
                                 fillMode: Image.PreserveAspectFit  // Keeps aspect ratio
+                            }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    songModel.togglePlayPause()
+                                }
                             }
                         }
 
@@ -629,6 +779,15 @@ Item {
                                 source: "/images/next_track_white_32.png"
                                 anchors.fill: parent     // Image fills the Rectangle
                                 fillMode: Image.PreserveAspectFit  // Keeps aspect ratio
+                            }
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    currentTrackIndex++
+                                    if (currentTrackIndex >= songModel.count)
+                                        currentTrackIndex = 0
+                                    songModel.playSongAt(currentTrackIndex)
+                                }
                             }
                         }
                     }
@@ -657,6 +816,8 @@ Item {
             }
 
         }
+
+        // Small Screen
         Rectangle {
             id: musicBar
             color: "transparent"
@@ -667,10 +828,44 @@ Item {
             height: parent.height / 5.5
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottomMargin: height / 25
+            z: -10
+            // This MouseArea captures input ONLY within the music screen area
             MouseArea {
+                id: smallMusicBarBlocker
+                z: 0
                 anchors.fill: parent
-                onClicked: musicPlayer.isFullScreen = true
+                propagateComposedEvents: false
+                preventStealing: true
+                // hoverEnabled: true
+                // cursorShape: Qt.PointingHandCursor
+                // onPressed: mouse => mouse.accepted = true
+                // onReleased: mouse => mouse.accepted = true
+                // onPositionChanged: mouse => mouse.accepted = true
+                // onEntered: {
+                //     mapItem.enabled = false
+                //     console.log("entered")
+                // }
+                // onExited: {
+                //     mapItem.enabled = true
+                //     console.log("exited")
+
+                // }
+
+                onClicked: (mouse) => {
+                    // If the mouse is NOT inside the child slider or handle, allow parent action
+                    // if (!playMouseArea.containsMouse) {
+                    //     console.log("Parent clicked → fullscreen")
+                    //     musicPlayer.isFullScreen = true
+                    // } else {
+                    //     // Let child process the event
+                    //     mouse.accepted = false
+                    //     console.log("Click was inside child → ignored by parent")
+                    // }
+                    musicPlayer.isFullScreen = true
+
+                }
             }
+
             Rectangle {
                 id: backgroundColor
                 anchors.fill: parent
@@ -681,7 +876,7 @@ Item {
 
             Image {
                 id: sourceGoneAva
-                source: "/images/music_gone.jpg"
+                source: songModel.currentSongImage
                 anchors.left: musicBar.left
                 height: musicBar.height
                 width: height
@@ -712,27 +907,90 @@ Item {
 
             Rectangle {
                 id: playingSong
-                width: parent.width / 4
+                width: parent.width / 3.2
                 height: parent.height / 1.2
                 color: "transparent"
                 anchors.left: sourceGoneAva.right
                 anchors.leftMargin: width / 10
                 anchors.verticalCenter: parent.verticalCenter
+                // clip: true
+
+                // // This MouseArea captures input ONLY within the music screen area
+                // MouseArea {
+                //     id: smallSmallMusicBarBlocker
+                //     z: 4000
+                //     anchors.fill: parent
+                //     preventStealing: true
+                //     propagateComposedEvents: false
+                //     hoverEnabled: true
+                //     // cursorShape: Qt.PointingHandCursor
+                //     onPressed: mouse => mouse.accepted = true
+                //     onReleased: mouse => mouse.accepted = true
+                //     onPositionChanged: mouse => mouse.accepted = true
+                // }
 
                 ColumnLayout {
+                    id: musicBarColumnLayout
                     anchors.fill: parent
                     spacing: 0
-
+                    Layout.preferredWidth: parent.width // fixed width
+                    Layout.maximumWidth: parent.width // cap max width
                     RowLayout {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
 
-                        Text {
-                            text: "GONE"
-                            color: "#FFFFFF"
-                            font.pixelSize: parent.parent.height / 6
-                            font.bold: false
+                        Rectangle {
+                            id: smallTitleClip
+                            Layout.preferredWidth: parent.parent.width / 1.2
+                            Layout.preferredHeight: parent.parent.height / 6
+                            color: "transparent"
+                            clip: true
+
+                            Item {
+                                id: smallTitleContainer
+                                width: smallTitleMetrics.width
+                                height: parent.height
+                                x: smallTitleAnim.running ? smallTitleAnim.from : 0
+
+                                Text {
+                                    id: smallTitleText
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    text: songModel.currentSongTitle
+                                    color: "#FFFFFF"
+                                    font.pixelSize: smallColumnLayout.height / 6
+                                    font.bold: false
+                                    wrapMode: Text.NoWrap
+                                }
+
+                                // Animation
+                                NumberAnimation on x {
+                                    id: smallTitleAnim
+                                    from: 0
+                                    to: -(smallTitleMetrics.width - smallTitleClip.width)
+                                    duration: 8000
+                                    loops: Animation.Infinite
+                                    running: smallTitleMetrics.width > smallTitleClip.width
+                                }
+
+                                onWidthChanged: {
+                                    if (smallTitleMetrics.width > smallTitleClip.width) {
+                                        x = 0
+                                        smallTitleAnim.restart()
+                                    } else {
+                                        x = 0
+                                        smallTitleAnim.stop()
+                                    }
+                                }
+                            }
+
+                            // Measure text width
+                            TextMetrics {
+                                id: smallTitleMetrics
+                                font: smallTitleText.font
+                                text: smallTitleText.text
+                            }
                         }
+
                         Item { Layout.fillWidth: true }
                         Image {
                             source: "/images/like_16.png" // Add a heart icon image
@@ -742,28 +1000,33 @@ Item {
                     }
 
                     Text {
-                        text: "Rosé"
+                        text: songModel.currentSongArtist
                         color: "#8f8f8f"
                         font.pixelSize: parent.parent.height / 7
                         // Layout.alignment: Qt.AlignHCenter
-                        Layout.topMargin: 0
+                        elide: Text.ElideRight
+                        wrapMode: Text.NoWrap
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: parent.width
                     }
 
                     ColumnLayout {
                         Layout.fillHeight: true
                         Layout.alignment: Qt.AlignVCenter
-
                         RowLayout {
                             Layout.alignment: Qt.AlignHCenter
                             spacing: 0
+
                             Text {
-                                text: "2:45"
+                                text: helpers.formatTime(songModel.currentSongProgress)
                                 color: "#8f8f8f"
                                 font.pixelSize: parent.parent.parent.height / 6
                             }
+
                             Item { Layout.fillWidth: true }
+
                             Text {
-                                text: "4:58"
+                                text: helpers.formatTime(songModel.currentSongDuration)
                                 color: "#8f8f8f"
                                 font.pixelSize: parent.parent.parent.height / 6
                             }
@@ -775,13 +1038,26 @@ Item {
                             height: 3
 
                             from: 0
-                            to: 100
-                            value: 10 // starting value
+                            to: songModel.currentSongDuration
+                            value: songModel.currentSongProgress
 
                             // Remove default styling
                             background: Rectangle {
                                 anchors.fill: parent
                                 color: "transparent"
+                            }
+
+                            // Click anywhere to set progress
+                            MouseArea {
+                                width: parent.width
+                                height: parent.height * 5
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                anchors.verticalCenter: parent.verticalCenter
+                                onPressed: (mouse) => {
+                                    const ratio = mouse.x / width;
+                                    const newValue = smallProgressBar.from + ratio * (smallProgressBar.to - smallProgressBar.from);
+                                    songModel.setCurrentSongProgress(newValue);
+                                }
                             }
 
                             // Custom progress track
@@ -812,8 +1088,39 @@ Item {
                                 color: "white"
                                 x: smallProgressBar.width * (smallProgressBar.value / smallProgressBar.to) - width / 2
                                 y: (parent.height - height) / 2
-                                z: 2
+                                z: 6000
+
+                                property bool dragging: false  // to track drag state
+
+                                MouseArea {
+                                    id: smallHandleMouseArea
+                                    anchors.centerIn: parent
+                                    // propagateComposedEvents: false
+                                    preventStealing: true
+
+                                    width: 30
+                                    height: 30
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    z: 5000
+                                    onPressed: mouse => {
+                                        parent.dragging = true;
+                                    }
+
+                                    onReleased: mouse => {
+                                        parent.dragging = false;
+                                    }
+
+                                    onPositionChanged: mouse => {
+                                        if (parent.dragging) {
+                                            let newValue = smallProgressBar.from + ((mouse.x + parent.x) / smallProgressBar.width) * (smallProgressBar.to - smallProgressBar.from);
+                                            let currentValue = Math.max(smallProgressBar.from, Math.min(smallProgressBar.to, newValue));
+                                            songModel.setCurrentSongProgress(currentValue);
+                                        }
+                                    }
+                                }
                             }
+
                         }
 
                     }
@@ -824,42 +1131,104 @@ Item {
             }
 
             // Play controls
-            Row {
-                spacing: musicBar.width / 15
+            RowLayout {
+                height: musicBar.height
+                Layout.fillWidth: true
+                spacing: musicBar.width / 17
                 // anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: playingSong.right
-                anchors.leftMargin: musicBar.width / 10
+                anchors.leftMargin: 0
 
-                Image {
-                    source: "/images/shuffle_white_32.png"
-                    width: height
-                    height: musicBar.height / 4.5
+                Item { Layout.fillWidth: true }
+
+                Rectangle {
+                    Layout.preferredHeight: Layout.preferredWidth
+                    Layout.preferredWidth: musicBar.height / 4.5
+                    color: "transparent"
+                    Image {
+                        anchors.fill: parent
+                        source: "/images/shuffle_white_32.png"
+                        fillMode: Image.PreserveAspectFit
+                    }
                 }
 
-                Image {
-                    source: "/images/previous_track_white_32.png"
-                    width: height
-                    height: musicBar.height / 4.5
+                Rectangle {
+                    Layout.preferredHeight: Layout.preferredWidth
+                    Layout.preferredWidth: musicBar.height / 4.5
+                    color: "transparent"
+                    Image {
+                        id: smallPreviousTrackIcon
+                        source: "/images/previous_track_white_32.png"
+                        anchors.fill: parent     // Image fills the Rectangle
+                        fillMode: Image.PreserveAspectFit  // Keeps aspect ratio
+
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            currentTrackIndex--
+                            if (currentTrackIndex < 0)
+                                currentTrackIndex = songModel.count - 1
+                            songModel.playSongAt(currentTrackIndex)
+                        }
+                    }
                 }
 
-                Image {
-                    source: "/images/continue_white_32.png"
-                    width: height
-                    height: musicBar.height / 4.5
+
+                Rectangle {
+                    Layout.preferredHeight: Layout.preferredWidth
+                    Layout.preferredWidth: musicBar.height / 4.5
+                    color: "transparent"
+                    Image {
+                        source: playIcon.source
+                        anchors.fill: parent
+                        fillMode: Image.PreserveAspectFit
+                        MouseArea {
+                            id: playMouseArea
+                            // preventStealing: true
+                            // propagateComposedEvents: false
+                            // cursorShape: Qt.PointingHandCursor
+                            anchors.fill: parent
+                            onClicked: {
+                                songModel.togglePlayPause()
+                            }
+                        }
+                    }
                 }
 
-                Image {
-                    source: "/images/next_track_white_32.png"
-                    width: height
-                    height: musicBar.height / 4.5
+                Rectangle {
+                    Layout.preferredHeight: Layout.preferredWidth
+                    Layout.preferredWidth: musicBar.height / 4.5
+                    color: "transparent"
+                    Image {
+                        anchors.fill: parent
+                        source: "/images/next_track_white_32.png"
+                        fillMode: Image.PreserveAspectFit
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            currentTrackIndex++
+                            if (currentTrackIndex >= songModel.count)
+                                currentTrackIndex = 0
+                            songModel.playSongAt(currentTrackIndex)
+                        }
+                    }
                 }
 
-                Image {
-                    source: "/images/repeat_white_32.png"
-                    width: height
-                    height: musicBar.height / 4.5
+                Rectangle {
+                    Layout.preferredHeight: Layout.preferredWidth
+                    Layout.preferredWidth: musicBar.height / 4.5
+                    color: "transparent"
+                    Image {
+                        anchors.fill: parent
+                        source: "/images/repeat_white_32.png"
+                        fillMode: Image.PreserveAspectFit
+                    }
                 }
+
+                Item { Layout.fillWidth: true }
 
             }
         }

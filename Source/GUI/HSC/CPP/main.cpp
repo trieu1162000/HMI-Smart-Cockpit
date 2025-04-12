@@ -7,6 +7,7 @@
 #include "controllers/lightController.h"
 #include "controllers/speedController.h"
 #include "controllers/lockcontroller.h"
+#include "models/song_model.h"
 #include "apptype.h"
 #include "custom3DModel/linemodel.h"
 
@@ -32,13 +33,16 @@ int main(int argc, char *argv[])
     engine.addImportPath("qrc:/");  // Ensure QML modules are found
     engine.load(QUrl(QStringLiteral("qrc:/QML/GlobalVar.qml")));
 
-    // Controller
+    // Controllers
     airConditionController ac_controller;
     audioController a_controller;
     lightController l_controller;
     speedController s_controller;
     lockController locked_controller;
 
+    // Models
+    songModel s_model;
+    s_model.loadFromFolder("C:/Workspace/music");
 
     QQmlContext *context( engine.rootContext() );
 
@@ -48,7 +52,7 @@ int main(int argc, char *argv[])
     context->setContextProperty("lightController", &l_controller);
     context->setContextProperty("speedController", &s_controller);
     context->setContextProperty("lockController", &locked_controller);
-
+    context->setContextProperty("songModel", &s_model);
     engine.loadFromModule("HSC", "Main");
 
     return app.exec();

@@ -169,27 +169,6 @@ Rectangle {
         anchors.right: parent.right
         width: parent.width * 9 / 10
         height: parent.height * 3 / 34
-        // Rectangle {
-        //     color: "transparent"
-        //     anchors.fill: parent
-        //     Image {
-        //         id: homeViewIcon
-        //         anchors.horizontalCenter: parent.horizontalCenter
-        //         anchors.bottom: parent.bottom
-        //         height: sideBar.height / 40
-        //         width: height
-        //         source: "/images/home_white_32.png"
-        //         fillMode: Image.PreserveAspectFit
-        //         MouseArea {
-        //             id: mouseAreaHomeViewIcon
-        //             anchors.fill: homeViewIcon
-
-        //             onPressed: {
-        //                 rotationCarView.start()
-        //             }
-        //         }
-        //     }
-        // }
     }
 
     Item {
@@ -265,7 +244,6 @@ Rectangle {
                             {
                                 buttons3DLeftSidePanel.visible = false
                                 changeFrunkView.start();
-                                carModel.openFrunkEvent.start();
                             }
                             else
                             {
@@ -279,7 +257,6 @@ Rectangle {
                             if(pickedObject.isClicked) {
                                 buttons3DLeftSidePanel.visible = false
                                 changeTrunkView.start();
-                                carModel.openTrunkEvent.start();
                             }
                             else
                                carModel.closeTrunkEvent.start();
@@ -293,6 +270,7 @@ Rectangle {
                     }
                 }
                 onPressed: (mouse) => {
+                    carModel.eulerRotation.x = 0
                     dragging = true;  // Start tracking movement
                     lastX = mouse.x
                     lastY = mouse.y
@@ -314,7 +292,7 @@ Rectangle {
 
                         // Normalize rotationX to stay within -180 to 180
                         if (rotationX < -100) rotationX = -100
-                        if (rotationX > 10) rotationX = 10
+                        if (rotationX > 0) rotationX = 0
 
                         // Normalize rotationY to stay within -180 to 180
                         if (rotationY > 180) rotationY -= 360
@@ -339,8 +317,11 @@ Rectangle {
     }
 
     // Animations
-    SequentialAnimation {
+    ParallelAnimation  {
         id: changeFrunkView
+        onStopped: {
+            carModel.openFrunkEvent.start();
+        }
         NumberAnimation {
             target: carModel
             property: "eulerRotation.x"
@@ -356,8 +337,11 @@ Rectangle {
             easing.type: Easing.InOutQuad
         }
     }
-    SequentialAnimation {
+    ParallelAnimation  {
         id: changeTrunkView
+        onStopped: {
+            carModel.openTrunkEvent.start();
+        }
         NumberAnimation {
             target: carModel
             property: "eulerRotation.x"
@@ -374,7 +358,7 @@ Rectangle {
         }
     }
 
-    SequentialAnimation {
+    ParallelAnimation  {
         id: rotationCarView
         onStopped: {
             buttons3DLeftSidePanel.visible = true
