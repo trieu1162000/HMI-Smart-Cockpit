@@ -200,7 +200,7 @@ Item {
         height: parent.height * 14 / 15
         width: parent.width
         anchors.bottom: parent.bottom
-        property bool isFullScreen: true
+        property bool isFullScreen: false
 
         // States switch between full và small
         states: [
@@ -232,19 +232,31 @@ Item {
                 anchors.fill: parent
                 color: "black"    // Full black color
             }
-            Image {
-                id: coverSongImage
+            Item {
+                id: coverSongImageContainer
                 anchors.fill: parent
-                source: songModel.currentSongImage
-                fillMode: Image.PreserveAspectCrop
                 visible: false
-                scale: 10
-                cache: false // Important: forces reload on change
+
+                Image {
+                    id: coverSongImage
+                    anchors.fill: parent
+                    source: currentTrackIndex === -1 ? "/images/background_music.jpg" : songModel.currentSongImage
+                    fillMode: Image.PreserveAspectFit
+                    cache: false
+
+                    transform: Scale {
+                        id: zoomEffect
+                        origin.x: coverSongImage.width / 2
+                        origin.y: coverSongImage.height / 2
+                        xScale: 2
+                        yScale: 2
+                    }
+                }
             }
             MultiEffect {
                 id: blurEffect
                 anchors.fill: parent
-                source: coverSongImage
+                source: coverSongImageContainer
                 blurEnabled: true
                 blur: 0.99
                 brightness: -0.0
@@ -357,19 +369,32 @@ Item {
                     Layout.preferredWidth: parent.height / 1.2
                     Layout.preferredHeight: parent.height / 1.2
                     Layout.alignment: Qt.AlignVCenter
+
+                    // Gray background only when no song is selected
+                    Rectangle {
+                        id: colorBg
+                        anchors.centerIn: parent
+                        width: currentTrackIndex === -1 ? parent.width / 1.8 : parent.width / 1.6
+                        height: width
+                        radius: width / 20
+                        color: currentTrackIndex === -1 ? "#cccccc" : "transparent"
+                        z: -1
+                    }
+
                     Image {
                         id: sourceItem
                         source: songModel.currentSongImage
-                        anchors.centerIn: parent
-                        width: parent.width / 1.7
+                        anchors.centerIn: colorBg
+                        width: currentTrackIndex === -1 ? parent.width / 6 : parent.width / 1.6
                         height: width
+                        fillMode: Image.Stretch
                         visible: false
-                        cache: false // Important: forces reload on change
+                        cache: false
                     }
 
                     MultiEffect {
-                        source: sourceItem
                         anchors.fill: sourceItem
+                        source: sourceItem
                         maskEnabled: true
                         maskSource: mask2
                     }
@@ -382,8 +407,8 @@ Item {
                         visible: false
 
                         Rectangle {
-                            width: sourceItem.width
-                            height: sourceItem.height
+                            width: parent.width
+                            height: parent.height
                             radius: width / 20
                             color: "black"
                         }
@@ -852,15 +877,6 @@ Item {
                 // }
 
                 onClicked: (mouse) => {
-                    // If the mouse is NOT inside the child slider or handle, allow parent action
-                    // if (!playMouseArea.containsMouse) {
-                    //     console.log("Parent clicked → fullscreen")
-                    //     musicPlayer.isFullScreen = true
-                    // } else {
-                    //     // Let child process the event
-                    //     mouse.accepted = false
-                    //     console.log("Click was inside child → ignored by parent")
-                    // }
                     musicPlayer.isFullScreen = true
 
                 }
@@ -874,32 +890,59 @@ Item {
                 radius: parent.radius
             }
 
-            Image {
-                id: sourceGoneAva
-                source: songModel.currentSongImage
+            // Gray background only when no song is selected
+            Rectangle {
+                id: smallColorBg
                 anchors.left: musicBar.left
                 height: musicBar.height
                 width: height
+                radius: width / 9
+                color: currentTrackIndex === -1 ? "#cccccc" : "transparent"
+                z: -1
+            }
+
+            Item {
+                id: smallCoverSongImageContainer
+                anchors.centerIn: smallColorBg
+                height: currentTrackIndex === -1
+                        ? musicBar.height / 4
+                        : musicBar.height
+                width: height
                 visible: false
+                Image {
+                    id: smallCoverSongImage
+                    anchors.fill: parent
+                    source: songModel.currentSongImage
+                    fillMode: Image.PreserveAspectCrop
+                    cache: false
+
+                    transform: Scale {
+                        id: smallZoomEffect
+                        origin.x: smallCoverSongImage.width / 2
+                        origin.y: smallCoverSongImage.height / 2
+                        xScale: currentTrackIndex === -1 ? 1 : 1.7
+                        yScale: currentTrackIndex === -1 ? 1 : 2
+                    }
+                }
             }
 
             MultiEffect {
-                source: sourceGoneAva
-                anchors.fill: sourceGoneAva
+                source: smallCoverSongImageContainer
+                anchors.fill: smallCoverSongImageContainer
                 maskEnabled: true
                 maskSource: mask
             }
 
             Item {
                 id: mask
-                width: sourceGoneAva.width
-                height: sourceGoneAva.height
+                width: smallCoverSongImageContainer.width
+                height: smallCoverSongImageContainer.height
                 layer.enabled: true
                 visible: false
 
                 Rectangle {
-                    width: sourceGoneAva.width
-                    height: sourceGoneAva.height
+                    width: smallCoverSongImageContainer.width
+                    height: smallCoverSongImageContainer.height
                     radius: width / 9
                     color: "black"
                 }
@@ -910,8 +953,8 @@ Item {
                 width: parent.width / 3.2
                 height: parent.height / 1.2
                 color: "transparent"
-                anchors.left: sourceGoneAva.right
-                anchors.leftMargin: width / 10
+                anchors.left: smallColorBg.right
+                anchors.leftMargin: width / 20
                 anchors.verticalCenter: parent.verticalCenter
                 // clip: true
 
@@ -942,7 +985,7 @@ Item {
                         Rectangle {
                             id: smallTitleClip
                             Layout.preferredWidth: parent.parent.width / 1.2
-                            Layout.preferredHeight: parent.parent.height / 6
+                            Layout.preferredHeight: parent.parent.height / 3.5
                             color: "transparent"
                             clip: true
 
@@ -950,40 +993,51 @@ Item {
                                 id: smallTitleContainer
                                 width: smallTitleMetrics.width
                                 height: parent.height
-                                x: smallTitleAnim.running ? smallTitleAnim.from : 0
+                                property bool shouldScroll: false
 
                                 Text {
                                     id: smallTitleText
                                     anchors.verticalCenter: parent.verticalCenter
                                     text: songModel.currentSongTitle
                                     color: "#FFFFFF"
-                                    font.pixelSize: smallColumnLayout.height / 6
+                                    font.pixelSize: musicBarColumnLayout.height / 6
                                     font.bold: false
                                     wrapMode: Text.NoWrap
                                 }
 
-                                // Animation
-                                NumberAnimation on x {
+                                SequentialAnimation on x {
                                     id: smallTitleAnim
-                                    from: 0
-                                    to: -(smallTitleMetrics.width - smallTitleClip.width)
-                                    duration: 8000
                                     loops: Animation.Infinite
-                                    running: smallTitleMetrics.width > smallTitleClip.width
+                                    running: smallTitleContainer.shouldScroll
+
+                                    NumberAnimation {
+                                        from: smallTitleClip.width
+                                        to: -(smallTitleMetrics.width)
+                                        duration: 8000
+                                        easing.type: Easing.Linear
+                                    }
+
+                                    PauseAnimation { duration: 100 } // Optional: short pause at the end
+                                }
+
+                                // Restart animation on width or text change
+                                Component.onCompleted: {
+                                        shouldScroll = smallTitleMetrics.width > smallTitleClip.width
+                                        x = shouldScroll ? smallTitleClip.width : 0
+                                        if (shouldScroll) smallTitleAnim.start()
                                 }
 
                                 onWidthChanged: {
-                                    if (smallTitleMetrics.width > smallTitleClip.width) {
-                                        x = 0
-                                        smallTitleAnim.restart()
+                                    smallTitleAnim.stop()
+                                    if (shouldScroll) {
+                                        x = smallTitleClip.width
+                                        smallTitleAnim.start()
                                     } else {
                                         x = 0
-                                        smallTitleAnim.stop()
                                     }
                                 }
                             }
 
-                            // Measure text width
                             TextMetrics {
                                 id: smallTitleMetrics
                                 font: smallTitleText.font
