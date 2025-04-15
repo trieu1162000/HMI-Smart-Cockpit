@@ -133,7 +133,7 @@ QUrl songModel::currentSongImage() const {
         // qDebug() << "Generated image URL:" << url.toString();
         return url;
     }
-    return QUrl("qrc:/images/music_gone.jpg");
+    return QUrl("qrc:/images/music_note_white_32.png");
 }
 
 QUrl songModel::imageToUrl(const QImage& image) const
@@ -149,7 +149,7 @@ QUrl songModel::imageToUrl(const QImage& image) const
 QString songModel::currentSongTitle() const {
     if (m_currentPlayingSong)
         return m_currentPlayingSong->title;
-    return QString("No Playing");
+    return QString("Not Playing");
 }
 
 QString songModel::currentSongArtist() const
