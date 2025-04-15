@@ -654,7 +654,7 @@ Item {
                                     id: titleContainer
                                     width: titleMetrics.width
                                     height: parent.height
-
+                                    property bool shouldScroll: titleMetrics.width > titleClip.width
                                     Text {
                                         id: titleText
                                         anchors.verticalCenter: parent.verticalCenter
@@ -663,24 +663,33 @@ Item {
                                         font.pixelSize: 10
                                         wrapMode: Text.NoWrap
                                     }
-
-                                    NumberAnimation on x {
+                                    SequentialAnimation on x {
                                         id: titleAnim
-                                        from: 0
-                                        to: -(titleMetrics.width - titleClip.width)
-                                        duration: 8000
                                         loops: Animation.Infinite
-                                        running: titleMetrics.width > titleClip.width
+                                        running: titleContainer.shouldScroll
+
+                                        NumberAnimation {
+                                            from: titleClip.width
+                                            to: -(titleMetrics.width)
+                                            duration: 8000
+                                            easing.type: Easing.Linear
+                                        }
+
+                                        PauseAnimation { duration: 100 } // Optional: short pause at the end
                                     }
 
+                                    // Restart animation on width or text change
+                                    Component.onCompleted: {
+                                            x = shouldScroll ? titleClip.width : 0
+                                            if (shouldScroll) titleAnim.start()
+                                    }
                                     onWidthChanged: {
-                                        // Restart animation if text width changes
-                                        if (titleMetrics.width > titleClip.width) {
-                                            x = 0
-                                            titleAnim.restart()
+                                        titleAnim.stop()
+                                        if (shouldScroll) {
+                                            x = titleClip.width
+                                            titleAnim.start()
                                         } else {
                                             x = 0
-                                            titleAnim.stop()
                                         }
                                     }
                                 }
@@ -993,7 +1002,7 @@ Item {
                                 id: smallTitleContainer
                                 width: smallTitleMetrics.width
                                 height: parent.height
-                                property bool shouldScroll: false
+                                property bool shouldScroll: smallTitleMetrics.width > smallTitleClip.width
 
                                 Text {
                                     id: smallTitleText
@@ -1022,7 +1031,6 @@ Item {
 
                                 // Restart animation on width or text change
                                 Component.onCompleted: {
-                                        shouldScroll = smallTitleMetrics.width > smallTitleClip.width
                                         x = shouldScroll ? smallTitleClip.width : 0
                                         if (shouldScroll) smallTitleAnim.start()
                                 }
