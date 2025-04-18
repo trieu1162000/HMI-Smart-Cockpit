@@ -270,7 +270,6 @@ Rectangle {
                     }
                 }
                 onPressed: (mouse) => {
-                    carModel.eulerRotation.x = 0
                     dragging = true;  // Start tracking movement
                     lastX = mouse.x
                     lastY = mouse.y
@@ -282,7 +281,7 @@ Rectangle {
 
                 onPositionChanged: (event) => {
                     if(dragging) {
-                        // carModel.eulerRotation = Qt.vector3d(0, 0, 0)
+                        carModel.eulerRotation.x = 0
                         buttons3DLeftSidePanel.visible = false
                         var dx = event.x - lastX
                         var dy = event.y - lastY
