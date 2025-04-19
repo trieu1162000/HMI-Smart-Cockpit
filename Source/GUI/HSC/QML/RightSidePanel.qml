@@ -441,7 +441,17 @@ Item {
                         Rectangle {
                             anchors.fill: parent
                             color: "transparent"
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                // propagateComposedEvents: true
 
+                                onClicked: {
+                                    currentTrackIndex = index
+                                    songModel.playSongAt(index)
+                                    console.log("clicked song at", index)
+                                }
+                            }
                             RowLayout {
                                 id: listSongRowLayout
                                 anchors.verticalCenter: parent.verticalCenter
@@ -483,23 +493,73 @@ Item {
                                 Item { Layout.fillWidth: true }
 
                                 Image {
+                                    id: moreIcon
                                     source: "/images/more_white_32.png"
+                                    // color: "red"
                                     Layout.preferredHeight: contentRowLayout.height / 20
                                     Layout.preferredWidth: Layout.preferredHeight
+
+                                    MouseArea {
+                                        id: moreMouseArea
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
+                                        acceptedButtons: Qt.RightButton | Qt.LeftButton
+
+                                        onClicked: {
+                                            let menuWidth = listSongRowLayout.width / 3;
+                                            moreMenu.width = menuWidth;
+                                            moreMenu.popup(moreIcon.x - menuWidth / 1.3, moreIcon.y);
+                                        }
+                                    }
+                                }
+
+                                Menu {
+                                    id: moreMenu
+                                    // width: listSongRowLayout.width / 3    // Custom background with rounded corners
+                                    // x: moreIcon.x - width
+                                    // y: moreIcon.y
+                                    clip: true
+                                    background: Rectangle {
+                                        id: menuBackgroundItem
+                                        radius: width / 12
+                                        clip: true
+
+                                        Image {
+                                            id: menuBackgroundItemImage
+                                            opacity: 0.3
+                                            anchors.fill: parent
+                                            source: coverSongImage.source
+                                            fillMode: Image.PreserveAspectCrop
+                                            // smooth: true
+                                            transform: Scale {
+                                                id: zoomMenuItemEffect
+                                                origin.x: menuBackgroundItemImage.width / 2
+                                                origin.y: menuBackgroundItemImage.height / 2
+                                                xScale: 2
+                                                yScale: 2
+                                            }
+                                        }
+                                    }
+                                    MenuItem {
+                                        text: "Add"
+                                        // contentItem: Text {
+                                        //     color: "red"
+                                        // }
+                                        onTriggered: console.log("Add clicked")
+                                    }
+                                    MenuItem {
+                                        text: "Delete"
+                                        onTriggered: console.log("Delete clicked")
+                                    }
+                                    MenuItem {
+                                        text: "Detail"
+                                        onTriggered: console.log("Detail clicked")
+                                    }
                                 }
                             }
                         }
 
-                        MouseArea {
-                            anchors.fill: parent
-                            z: 999  // Make sure it's on top
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: {
-                                currentTrackIndex = index
-                                songModel.playSongAt(index)
-                                console.log("clicked song at", index)
-                            }
-                        }
                     }
                 }
 
@@ -970,7 +1030,6 @@ Item {
                 // // This MouseArea captures input ONLY within the music screen area
                 // MouseArea {
                 //     id: smallSmallMusicBarBlocker
-                //     z: 4000
                 //     anchors.fill: parent
                 //     preventStealing: true
                 //     propagateComposedEvents: false
@@ -1150,7 +1209,7 @@ Item {
                                 color: "white"
                                 x: smallProgressBar.width * (smallProgressBar.value / smallProgressBar.to) - width / 2
                                 y: (parent.height - height) / 2
-                                z: 6000
+                                z: 1
 
                                 property bool dragging: false  // to track drag state
 
@@ -1164,7 +1223,6 @@ Item {
                                     height: 30
                                     hoverEnabled: true
                                     cursorShape: Qt.PointingHandCursor
-                                    z: 5000
                                     onPressed: mouse => {
                                         parent.dragging = true;
                                     }
