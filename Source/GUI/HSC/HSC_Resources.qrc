@@ -256,5 +256,8 @@
         <file>images/repeat_black_32.png</file>
         <file>images/user_white_32.png</file>
         <file>images/user_black_32.png</file>
+        <file>images/music_note_white_32.png</file>
+        <file>images/music_note_black_32.png</file>
+        <file>images/background_music.jpg</file>
     </qresource>
 </RCC>
