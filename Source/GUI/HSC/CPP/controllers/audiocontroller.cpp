@@ -2,7 +2,7 @@
 
 audioController::audioController(QObject *parent)
     : QObject(parent),
-      m_volumeLevel(0),
+      m_volumeLevel(50),
       m_audioOutput(std::make_unique<QAudioOutput>())
 {
     if (m_audioOutput)
@@ -11,7 +11,6 @@ audioController::audioController(QObject *parent)
 
 QAudioOutput* audioController::audioOutput() const
 {
-    qDebug() << "Volume output get";
     return m_audioOutput.get();
 }
 
