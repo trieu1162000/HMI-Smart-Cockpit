@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QDebug>
+#include <QAudioOutput>
 
 class audioController : public QObject
 {
@@ -12,6 +13,8 @@ public:
     explicit audioController(QObject *parent = nullptr);
 
     int volumeLevel() const;
+    QAudioOutput* audioOutput() const;
+
     Q_INVOKABLE void increaseVolume(const int &val);
 public slots:
     void setVolumeLevel(int newVolumeLevel);
@@ -19,6 +22,7 @@ signals:
     void volumeLevelChanged();
 private:
     int m_volumeLevel;
+    std::unique_ptr<QAudioOutput> m_audioOutput;
 };
 
 #endif // AUDIOCONTROLLER_H

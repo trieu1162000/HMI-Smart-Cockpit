@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     lockController locked_controller;
 
     // Models
-    songModel s_model;
+    songModel s_model(&a_controller);
     s_model.loadFromFolder("C:/Workspace/music");
 
     QQmlContext *context( engine.rootContext() );

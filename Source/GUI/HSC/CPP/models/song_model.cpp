@@ -9,13 +9,16 @@
 #include <QStandardPaths>
 #include <QBuffer>
 
-songModel::songModel(QObject *parent)
+songModel::songModel(audioController* controller, QObject* parent)
     : QAbstractListModel(parent)
 {
-    m_audioOutput = std::make_unique<QAudioOutput>();
+    if (controller)
+        m_audioController.reset(controller);
+    else
+        m_audioController = std::make_unique<audioController>();
     m_currentPlayingSong = nullptr;
     m_player = std::make_unique<QMediaPlayer>();
-    m_player->setAudioOutput(m_audioOutput.get());
+    m_player->setAudioOutput(m_audioController->audioOutput());
 
     connect(m_player.get(), &QMediaPlayer::positionChanged, this, [this](qint64){
         emit currentSongProgressChanged();

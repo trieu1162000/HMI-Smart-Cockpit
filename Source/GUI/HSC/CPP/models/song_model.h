@@ -7,6 +7,7 @@
 #include <QImage>
 #include <QMediaPlayer>
 #include <QAudioOutput>
+#include "../controllers/audiocontroller.h"
 
 struct songItem {
     QString title;
@@ -21,7 +22,7 @@ class songModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    explicit songModel(QObject *parent = nullptr);
+    songModel(audioController* controller = nullptr, QObject* parent = nullptr);
 
     enum SongRoles {
         TitleRole = Qt::UserRole + 1,
@@ -71,7 +72,7 @@ signals:
 private:
     QVector<songItem> m_songs;
     std::unique_ptr<QMediaPlayer> m_player;
-    std::unique_ptr<QAudioOutput> m_audioOutput;
+    std::unique_ptr<audioController> m_audioController;
     songItem* m_currentPlayingSong;
     int m_currentPlayingIndex = -1;
 };
