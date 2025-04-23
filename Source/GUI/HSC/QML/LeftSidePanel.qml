@@ -260,13 +260,20 @@ Rectangle {
                             }
                             else
                                carModel.closeTrunkEvent.start();
-                        } else if( (pickedObject.objectName === carModel.frunkCarMeshObjectName)
-                                || (pickedObject.objectName === carModel.trunkCarMeshObjectName) ) {
-                            rotationCarView.start();
                         } else {
                             console.log("3D Object Clicked!");
                         }
 
+                    }
+                }
+                onDoubleClicked: {
+                    var result = carView3D.pick(mouse.x, mouse.y);
+                    if (result.objectHit) {
+                        var pickedObject = result.objectHit;
+                        if( (pickedObject.objectName === carModel.frunkCarMeshObjectName)
+                         || (pickedObject.objectName === carModel.trunkCarMeshObjectName) ) {
+                            rotationCarView.start();
+                        }
                     }
                 }
                 onPressed: (mouse) => {
