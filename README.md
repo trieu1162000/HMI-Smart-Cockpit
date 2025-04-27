@@ -14,7 +14,7 @@ https://github.com/user-attachments/assets/b4a34802-57af-4e19-aa35-9de229f67aa8
 ![image](https://github.com/user-attachments/assets/d34afe88-8255-405b-b710-7ce6aba55060)
 
 - **12/04 - 20/04** – Music Player is completely implemented.
-- **26/04** – Navigation Map is being implemented.
+- **26/04 - 27/04** – Navigation Map is being implemented.
 https://github.com/user-attachments/assets/143d5d27-3e5d-40f0-9f2e-e8dfc1d82aab
 
 
